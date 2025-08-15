@@ -1,2 +1,10 @@
-* [Home](/)
-* [Banana](banana.md)
+- [Home](/0-home.md)
+- **Sprint 1**  
+  - [1. Overview](1-overview)  
+  - [2. Development Guide](2-development)  
+  - [3. Project Methodology](3-methodology)  
+  - [4. Tech Stack](4-tech-stack)  
+  - [5. Design Decisions](5-design)  
+  - [6. Stakeholder Feedback](6-stakeholders)  
+  - [7. Contributing](7-contributing)  
+  - [8. Implementation](8-implementation)  
