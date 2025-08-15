@@ -1,0 +1,2 @@
+* [Home](/)
+* [Banana](banana.md)
