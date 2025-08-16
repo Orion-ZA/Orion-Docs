@@ -2,4 +2,4 @@
 
 A crowd-sourced platform for hikers to discover, review, and update trail information.
 
-[Get Started](#1-overview) [GitHub Repo](https://github.com/Orion-ZA/Orion)
+[Get Started](0-home) [GitHub Repo](https://github.com/Orion-ZA/Orion)
