@@ -1,10 +1,10 @@
 - [Home](/0-home.md)
 - **Sprint 1**  
-  - [1. Overview](1-overview)  
-  - [2. Development Guide](2-development)  
-  - [3. Project Methodology](3-methodology)  
-  - [4. Tech Stack](4-tech-stack)  
-  - [5. Design Roadmap](5-plan)  
-  - [6. Stakeholder Feedback](6-stakeholders)  
-  - [7. Git Methodology](7-git)  
-  - [8. Implementation](8-implementation)  
+  - [Overview](1-overview)  
+  - [Development Guide](2-development)  
+  - [Project Methodology](3-methodology)  
+  - [Tech Stack](4-tech-stack)  
+  - [Design Roadmap](5-plan)  
+  <!-- - [Stakeholder Feedback](6-stakeholders)   -->
+  - [Git Methodology](7-git)  
+  <!-- - [Implementation](8-implementation)   -->
