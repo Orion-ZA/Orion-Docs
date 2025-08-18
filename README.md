@@ -1,7 +1,6 @@
 # Orion Documentation
 
-This repository contains the docsify-powered documentation for Orion. The documentation is lightweight, mobile-friendly, and automatically generated from Markdown files.
-
+This repository contains the docsify-powered documentation for [Orion](https://github.com/Orion-ZA/Orion). The documentation is lightweight, mobile-friendly, and automatically generated from Markdown files.
 
 ## Live Preview
 
