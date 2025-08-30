@@ -10,7 +10,7 @@
 
 ## Frontend  
 - **Framework**: React
-- **Styling**: TailwindCSS
+- **Styling**: ~~TailwindCSS~~ → Vanilla CSS 
 - **Why?** React is a powerful library for building dynamic user interfaces, and Tailwind CSS allows for rapid, utility-first styling. This combination will help us create a responsive design that works across all devices. We are all just very comfortable with React so it was a no brainer. 
 
 ## APIs  
@@ -49,3 +49,41 @@
     - Render / Railway (PaaS)
 
 - **Decision**: As of 12/08/2025 we have chosen to use Firebase Cloud Functions however it is a pay as you go service so if this doesn't suit sour needs and becomes expensive we will ultimately switch to the classic Node.js and Express.
+
+## Changes
+
+### CSS Framework Switch: TailwindCSS → Vanilla CSS
+
+**Date:** 23/08/2025
+**Reason:** Majority Vote on CSS being preferred
+
+#### Why We Switched
+
+**Previous Approach:** TailwindCSS
+- Utility-first CSS framework
+- Rapid prototyping capabilities
+- Large class-based HTML
+
+**New Approach:** Vanilla CSS
+- Smaller Bundle Size
+- Team was more comfortable
+- Easier maintenance for our team
+
+#### Impact
+
+**Pros:**
+- Smaller bundle size: Vanilla CSS often results in a smaller overall file size since it doesn't include the entire utility library that TailwindCSS does. This can lead to faster loading times for users.
+- Improved team comfort and collaboration: Since the team was more comfortable with Vanilla CSS, the switch likely reduced the learning curve and allowed for more efficient collaboration on styling tasks.
+- Familiar workflow: The team can stick to a tried-and-true workflow of writing CSS directly, which can feel more intuitive and natural for those experienced with it.
+- No reliance on external frameworks: By not depending on a framework like Tailwind, the project's styling is less tied to a specific ecosystem, which can make it easier to maintain and modify in the long run.
+
+**Cons:**
+- **Initial time constraints**: The switch required a period of refactoring the existing Tailwind CSS into Vanilla CSS, which took valuable development time
+- **Potential for inconsistency**: Without the enforced structure of a utility-first framework, there's a greater risk of slight inconsistencies in spacing, colors, or typography if the team isn't diligent with documentation or a robust design system
+- **Slower development for new features**: While a comfort with the tools makes work easier, the process of writing custom CSS rules for every new component or feature can be more time-consuming than applying existing utility classes from a framework
+
+#### Future Considerations
+
+We will continuously evaluate our styling approach. While Vanilla CSS is the current choice due to team comfort, we may reconsider a CSS preprocessor like Sass or a CSS-in-JS library in the future if the project's complexity increases. This would allow us to benefit from features like variables, nesting, and mixins, which could improve maintainability and scalability without the overhead of a full utility framework.
+
+Additionally, we'll monitor the performance of our CSS bundle to ensure it remains small and efficient as the application grows. This will be a key metric in deciding on any future changes to our frontend styling stack
