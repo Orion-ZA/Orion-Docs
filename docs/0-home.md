@@ -83,5 +83,5 @@ We welcome contributions! Please see our [Development Guide](2-development.md) f
 
 ---
 
-*Last updated: December 2024*
+*Last updated: 30/08/25*
 
