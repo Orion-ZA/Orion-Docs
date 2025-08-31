@@ -1,4 +1,4 @@
-# Database Schema and Deployment
+# Database Schema and Deployment for Crowdsourced Hiking Information
 
 ## Database Schema (Firebase Firestore)
 
@@ -15,8 +15,10 @@
     - `gpsRoute`: Array of GeoPoint objects
     - `description`: String
     - `photos`: Array of Strings (URLs to Firebase Storage)
-    - `status`: String (e.g., "open", "closed") with `lastUpdated` (Timestamp)
+    - `status`: String (e.g., "open", "closed")
     - `createdBy`: Reference to User document (e.g., `/users/{userId}`)
+    - `createdAt`: Timestamp
+    - `lastUpdated`: Timestamp
     - `reviews`: Subcollection (see below)
   - **Purpose**: Stores trail data with real-time updates and user-submitted content.
 
@@ -33,7 +35,7 @@
   - **Document Fields:**
     - `profileInfo`: Map (e.g., `name`: String, `email`: String, `joinedDate`: Timestamp)
     - `submittedTrails`: Array of References to Trail documents
-    - `favorites`: Array of References to Trail documents
+    - `favourites`: Array of References to Trail documents
     - `completedHikes`: Array of References to Trail documents
     - `wishlist`: Array of References to Trail documents
   - **Purpose**: Manages user profiles and their trail interactions.
@@ -92,11 +94,10 @@
   }
 }
 ```
-
 ## Choice Justification
 
 ### Firebase as Database
-- **Real-Time Updates**: Firebase's real-time capabilities align with the need for instant trail status and alert updates, enhancing user experience for hikers as of 10:32 PM SAST on Friday, August 29, 2025.
+- **Real-Time Updates**: Firebase's real-time capabilities align with the need for instant trail status and alert updates, enhancing user experience for hikers.
 - **Scalability**: Firestore's serverless architecture scales automatically, supporting community contributions and growing trail data.
 - **Ease of Integration**: Built-in authentication and Storage simplify user management and media handling, reducing development overhead.
 - **Hosting Compatibility**: Firebase Hosting pairs seamlessly with Firestore, offering a unified platform for both data and delivery.
@@ -105,6 +106,3 @@
 - **Simplicity**: Firebase Hosting provides a straightforward deployment process with CDN support, ideal for a web-based hiking app launched today.
 - **Performance**: Global CDN and SSL ensure fast, secure access for users across regions.
 - **Cost-Effectiveness**: Free tier with generous limits suits a prototype or small-scale project, with pay-as-you-go scaling for growth.
-- **AWS Hosting Context**: While AWS offers robust options, Firebase Hosting simplifies initial deployment and integrates natively with Firebase services, aligning with the current Firebase database choice as of 10:32 PM SAST on Friday, August 29, 2025.
-
-This setup leverages Firebase's strengths for a dynamic, user-driven application, with room to scale or integrate AWS services later if needed.
