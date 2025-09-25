@@ -40,7 +40,7 @@ control over map styles, interactivity, and data visualization.
 ### Install dependencies
 
 ``` bash
-npm install react-map-gl mapbox-gl
+npm install react-map-gl mapbox-gl @mapbox/mapbox-sdk
 ```
 
 ### Get a Mapbox access token
@@ -48,38 +48,162 @@ npm install react-map-gl mapbox-gl
 Sign up at [mapbox.com](https://www.mapbox.com/) → create a free account
 → get your API token.
 
+### Environment Configuration
+
+Add your Mapbox token to your environment variables:
+
+``` bash
+REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
+```
+
 ------------------------------------------------------------------------
 
-## 4. Usage Example
+## 4. How We Use It in Orion
 
-### Basic Example
+### Core Implementation
+
+Our Mapbox integration is primarily handled through two main components:
+
+#### TrailMap Component (`src/components/trails/TrailMap.js`)
+
+This is our main map component that handles:
+
+- **Interactive Trail Display**: Shows trail markers with difficulty-based colors and icons
+- **Trail Routes**: Renders trail paths as GeoJSON LineString layers
+- **User Location**: Displays user's current location with a pulsing marker
+- **Trail Submission**: Handles map clicks for trail submission mode
+- **Hover Cards**: Shows trail details on hover with mini cards
+- **Route Drawing**: Supports drawing custom routes for trail submissions
 
 ``` jsx
-import React from "react";
-import Map from "react-map-gl";
+import Map, { Marker, Popup, Source, Layer } from 'react-map-gl/mapbox';
+import "mapbox-gl/dist/mapbox-gl.css";
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
-
-export default function TrailMap() {
+const TrailMap = ({
+  viewport,
+  setViewport,
+  mapRef,
+  trails,
+  hoveredTrail,
+  setHoveredTrail,
+  selectedTrail,
+  setSelectedTrail,
+  onTrailClick,
+  onMapClick,
+  userLocation,
+  // ... other props
+}) => {
   return (
     <Map
-      initialViewState={{
-        longitude: -122.44,
-        latitude: 37.78,
-        zoom: 12
-      }}
-      style={{ width: "100%", height: "400px" }}
-      mapStyle="mapbox://styles/mapbox/outdoors-v12"
-      mapboxAccessToken={MAPBOX_TOKEN}
-    />
+      ref={mapRef}
+      {...viewport}
+      onMove={evt => setViewport(evt.viewState)}
+      onLoad={handleMapLoad}
+      onClick={onMapClick}
+      mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+      style={{ width: '100%', height: '100%' }}
+      mapStyle="mapbox://styles/mapbox/standard"
+    >
+      {/* Trail markers with difficulty-based styling */}
+      {trails.map(trail => (
+        <Marker key={trail.id} longitude={trail.longitude} latitude={trail.latitude}>
+          <div className="trail-marker" style={{
+            backgroundColor: getDifficultyColor(trail.difficulty)
+          }}>
+            {getDifficultyIcon(trail.difficulty)}
+          </div>
+        </Marker>
+      ))}
+      
+      {/* Trail routes as GeoJSON layers */}
+      {trails.map(trail => (
+        <Source key={`route-${trail.id}`} type="geojson" data={{
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: trail.route }
+        }}>
+          <Layer type="line" paint={{
+            'line-color': getDifficultyColor(trail.difficulty),
+            'line-width': 3,
+            'line-opacity': 0.8
+          }} />
+        </Source>
+      ))}
+    </Map>
   );
+};
+```
+
+#### MapControls Component (`src/components/trails/MapControls.js`)
+
+Provides interactive map controls:
+
+- **Zoom Controls**: Zoom in/out buttons
+- **Compass Reset**: Reset map to north when rotated
+- **Location Finding**: Find and center on user's location
+- **Recenter**: Recenter map on current location
+
+### Key Features We've Implemented
+
+1. **Trail Visualization**:
+   - Color-coded markers based on difficulty (Easy: Green, Moderate: Yellow, Hard: Red)
+   - Trail routes displayed as colored lines matching difficulty
+   - Hover cards showing trail details
+
+2. **Interactive Map Controls**:
+   - Zoom in/out functionality
+   - Compass reset for rotated maps
+   - User location finding and centering
+   - Map state tracking (bearing, pitch, center)
+
+3. **Trail Submission Mode**:
+   - Click-to-place trail markers
+   - Route drawing with numbered waypoints
+   - Real-time route visualization
+
+4. **User Experience**:
+   - Loading overlays during data fetching
+   - Smooth animations and transitions
+   - Responsive design for mobile and desktop
+
+### Map State Management
+
+We track several map states in our main Trails page:
+
+``` jsx
+// Map state tracking
+const [mapBearing, setMapBearing] = useState(0);
+const [mapPitch, setMapPitch] = useState(0);
+const [mapCenter, setMapCenter] = useState(null);
+
+// Viewport state for map positioning
+const [viewport, setViewport] = useState({
+  longitude: 28.0473,  // Default to Johannesburg, South Africa
+  latitude: -26.2041,
+  zoom: 10
+});
+```
+
+### Dependencies Used
+
+Our current implementation uses these specific Mapbox packages:
+
+``` json
+{
+  "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.16.1",
+    "mapbox-gl": "^3.14.0", 
+    "react-map-gl": "^8.0.4"
+  }
 }
 ```
 
-### Adding Trails
+### Testing Strategy
 
-We can overlay custom trail data using **GeoJSON layers**, markers, and
-popups to replicate AllTrails-like functionality.
+We've implemented comprehensive testing for our Mapbox components:
+
+- **Mocked Components**: `TrailMap` and `MapControls` are mocked in Jest tests
+- **Test Coverage**: Map interactions, trail rendering, and user controls
+- **Environment Setup**: Test token configuration in `test-utils.js`
 
 ------------------------------------------------------------------------
 
@@ -111,20 +235,53 @@ popups to replicate AllTrails-like functionality.
 
 ------------------------------------------------------------------------
 
-## 6. Risks & Considerations
+## 6. Current Implementation Status
 
--   API limits apply (check Mapbox pricing for scale).
--   Some offline features may require paid plans.
--   Dependency on an external third-party service.
+### ✅ Completed Features
+
+- **Trail Markers**: Color-coded markers with difficulty indicators
+- **Trail Routes**: GeoJSON LineString rendering with custom styling
+- **User Location**: GPS location display with pulsing marker
+- **Map Controls**: Zoom, compass reset, location finding
+- **Trail Submission**: Interactive map clicking for trail placement
+- **Route Drawing**: Custom route creation with waypoint markers
+- **Hover Cards**: Trail details on marker hover
+- **Responsive Design**: Mobile and desktop optimized
+
+### 🔄 In Progress / Future Enhancements
+
+- **Offline Maps**: Caching for areas with poor connectivity
+- **3D Terrain**: Elevation visualization for trail profiles
+- **Heatmaps**: Popular trail areas visualization
+- **Custom Map Styles**: Brand-specific trail-focused map themes
 
 ------------------------------------------------------------------------
 
-## 7. Conclusion
+## 7. Risks & Considerations
 
-For our AllTrails clone, **Mapbox is the better choice** because: - It
-allows **trail-focused custom maps** (outdoor, satellite,
-topographic). - It's **cheaper and more flexible** than Google Maps at
-scale. - It integrates smoothly with **React and modern web tech**.
+-   **API Limits**: Mapbox free tier has usage limits (50,000 map loads/month)
+-   **Token Security**: Environment variable management for production
+-   **Offline Features**: Some advanced features require paid plans
+-   **Dependency Risk**: Reliance on external third-party service
+-   **Performance**: Large numbers of trail markers may impact rendering
 
-This will give us a professional, scalable, and user-friendly mapping
-solution for our hiking/trails app.
+### Mitigation Strategies
+
+- Monitor API usage through Mapbox dashboard
+- Implement marker clustering for high-density areas
+- Use environment-specific tokens for development/production
+- Consider fallback strategies for service outages
+
+------------------------------------------------------------------------
+
+## 8. Conclusion
+
+For our AllTrails clone, **Mapbox has proven to be the right choice** because:
+
+- ✅ **Trail-focused Features**: Perfect for outdoor/hiking applications
+- ✅ **Cost Effective**: Generous free tier suitable for our current scale
+- ✅ **React Integration**: Seamless integration with our React ecosystem
+- ✅ **Customization**: Full control over map styling and trail visualization
+- ✅ **Performance**: Smooth WebGL rendering even with complex overlays
+
+Our current implementation successfully provides a professional, scalable, and user-friendly mapping solution that enhances the hiking/trails experience in our Orion application.
