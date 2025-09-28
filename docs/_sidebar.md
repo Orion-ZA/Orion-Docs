@@ -1,17 +1,17 @@
-- [Home](/0-home.md)
+- [Home](/home.md)
 - **Orion**  
-  - [Overview](1-overview)  
-  - [Development Guide](2-development)  
-  - [Project Methodology](3-methodology)  
-  - [Tech Stack](4-tech-stack)  
-  - [Design Roadmap](5-plan)  
-  <!-- - [Stakeholder Feedback](6-stakeholders)   -->
-  - [Git Methodology](7-git)
-  <!-- - [Implementation](8-implementation)   -->
-  - [Bug Tracker Guide](9-bugs)
-  - [Database Schema](10-database-schema)
-  - [Third-party Code](11-3rd-party)
-- [API Documentation](12-api)
-- [Testing](15-testing)
-- [Meetings](13-meetings)
-- [User Feedback](14-user-feedback)
+  - [Overview](overview)  
+  - [Development Guide](development)  
+  - [Project Methodology](methodology)  
+  - [Tech Stack](tech-stack)  
+  - [Design Roadmap](plan)  
+  <!-- - [Stakeholder Feedback](stakeholders)   -->
+  - [Git Methodology](git)
+  <!-- - [Implementation](implementation)   -->
+  - [Bug Tracker Guide](bugs)
+  - [Database Schema](database-schema)
+  - [Third-party Code](3rd-party)
+  - [API Documentation](api)
+  - [Testing](testing)
+  - [Meetings](meetings)
+  - [User Feedback](user-feedback)

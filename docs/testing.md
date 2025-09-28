@@ -328,11 +328,11 @@ Tests are automatically run on:
 - [Firebase Functions Testing](https://firebase.google.com/docs/functions/unit-testing)
 
 ### Internal Resources
-- [Component Testing Guidelines](./2-development.md#testing-guidelines)
-- [API Testing Standards](./12-api.md#testing)
-- [Code Review Checklist](./7-git.md#testing-requirements)
+- [Component Testing Guidelines](./development.md#testing-guidelines)
+- [API Testing Standards](./api.md#testing)
+- [Code Review Checklist](./git.md#testing-requirements)
 
 ---
 
-*Last updated: 27 September 2025*
-*Test coverage: 924/990 tests passing (88.27%)*
+*Last updated: 28 September 2025*
+*Test coverage: 2973 of 3238 lines covered (91.81%) on `dev`*

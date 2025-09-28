@@ -1,4 +1,4 @@
-# 4. Tech Stack  
+# Tech Stack  
 
 ## Backend  
 - **Framework**: Express.js

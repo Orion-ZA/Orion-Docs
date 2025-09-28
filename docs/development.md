@@ -1,4 +1,4 @@
-# 2. Development Guide  
+# Development Guide  
 
 ## 🗃 Database Setup
 

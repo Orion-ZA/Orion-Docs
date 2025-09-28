@@ -33,12 +33,13 @@
 
 - **Users Collection**
   - **Document Fields:**
-    - `profileInfo`: Map (e.g., `name`: String, `email`: String, `joinedDate`: Timestamp)
-    - `submittedTrails`: Array of References to Trail documents
-    - `favourites`: Array of References to Trail documents
-    - `completedHikes`: Array of References to Trail documents
-    - `wishlist`: Array of References to Trail documents
+    - `submittedTrails`: Array of References to Trail documents (trails created by this user)
+    - `favourites`: Array of References to Trail documents (user's favorite trails)
+    - `completed`: Array of References to Trail documents (trails marked as completed by user)
+    - `wishlist`: Array of References to Trail documents (trails user wants to hike)
+    - `profileInfo`: Map (optional - e.g., `name`: String, `email`: String, `joinedDate`: Timestamp)
   - **Purpose**: Manages user profiles and their trail interactions.
+  - **Note**: Trail references can be stored as either Firestore DocumentReference objects or string paths (e.g., "/Trails/abc123"). The `completed` field replaces the previously planned `completedHikes` field.
 
 - **Alerts Collection**
   - **Document Fields:**
@@ -52,7 +53,7 @@
 ### Relationships
 - **Trails to Users**: `createdBy` references the creating User; `submittedTrails` in Users links back.
 - **Trails to Reviews**: Nested subcollection with `userId` referencing Users.
-- **Users to Trails**: Arrays (`favorites`, `completedHikes`, `wishlist`) hold Trail references.
+- **Users to Trails**: Arrays (`favourites`, `completed`, `wishlist`, `submittedTrails`) hold Trail references.
 - **Trails to Alerts**: `trailId` references the associated Trail.
 
 ## Deployment Information (Firebase Hosting)

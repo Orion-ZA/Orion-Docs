@@ -1,4 +1,4 @@
-# 8. Implementation  
+# Implementation  
 
 ## ✅ Completed (Sprint 1)  
 - **Google OAuth**:  
