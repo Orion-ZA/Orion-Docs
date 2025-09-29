@@ -4,10 +4,10 @@ Final Comprehensive NPM Supply Chain Attack Security Audit Script
 ================================================================
 
 This script analyzes package.json and package-lock.json files to detect
-compromised packages from both NPM supply chain attacks in September 2024.
+compromised packages from both NPM supply chain attacks in September 2025.
 
 Author: Security Audit Team
-Date: 2024
+Date: 2025
 """
 
 import json
@@ -20,404 +20,404 @@ class FinalNPMSecurityAuditor:
     def __init__(self):
         # Complete list of compromised packages from both attacks
         self.compromised_packages = {
-            # Attack 1: September 8, 2024 - Crypto Wallet Hijacking Attack
+            # Attack 1: September 8, 2025 - Crypto Wallet Hijacking Attack
             "backslash": {
                 "affected_versions": ["0.2.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Backslash package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "0.26M"
             },
             "chalk-template": {
                 "affected_versions": ["1.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Chalk template package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "3.9M"
             },
             "supports-hyperlinks": {
                 "affected_versions": ["4.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Supports hyperlinks package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "19.2M"
             },
             "has-ansi": {
                 "affected_versions": ["6.0.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Has ansi package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "12.1M"
             },
             "simple-swizzle": {
                 "affected_versions": ["0.2.3"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Simple swizzle package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "26.26M"
             },
             "color-string": {
                 "affected_versions": ["2.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Color string package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "27.48M"
             },
             "error-ex": {
                 "affected_versions": ["1.3.3"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Error ex package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "47.17M"
             },
             "color-name": {
                 "affected_versions": ["2.0.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Color name package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "191.71M"
             },
             "is-arrayish": {
                 "affected_versions": ["0.3.3"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Is arrayish package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "73.8M"
             },
             "slice-ansi": {
                 "affected_versions": ["7.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Slice ansi package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "59.8M"
             },
             "color-convert": {
                 "affected_versions": ["3.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Color convert package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "193.5M"
             },
             "wrap-ansi": {
                 "affected_versions": ["9.0.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Wrap ansi package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "197.99M"
             },
             "ansi-regex": {
                 "affected_versions": ["6.2.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Ansi regex package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "243.64M"
             },
             "supports-color": {
                 "affected_versions": ["10.2.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Supports color package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "287.1M"
             },
             "strip-ansi": {
                 "affected_versions": ["7.1.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Strip ansi package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "261.17M"
             },
             "chalk": {
                 "affected_versions": ["5.6.1"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Chalk package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "299.99M"
             },
             "debug": {
                 "affected_versions": ["4.4.2"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Debug package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "357.6M"
             },
             "ansi-styles": {
                 "affected_versions": ["6.2.2"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Ansi styles package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "371.41M"
             },
             "proto-tinker-wc": {
                 "affected_versions": ["0.1.87"],
-                "attack_date": "2024-09-08",
+                "attack_date": "2025-09-08",
                 "description": "Proto tinker wc package compromised with crypto wallet hijacking malware",
                 "severity": "CRITICAL",
                 "weekly_downloads": "Unknown"
             },
             
-            # Attack 2: September 16, 2024 - Advanced Malware with Auto-Trojanization
+            # Attack 2: September 16, 2025 - Advanced Malware with Auto-Trojanization
             "@ctrl/tinycolor": {
                 "affected_versions": ["4.1.1", "4.1.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Tinycolor package compromised with advanced malware (2.2M weekly downloads)",
                 "severity": "CRITICAL",
                 "weekly_downloads": "2.2M"
             },
             "angulartics2": {
                 "affected_versions": ["14.1.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Angulartics2 package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/deluge": {
                 "affected_versions": ["7.2.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Deluge package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/golang-template": {
                 "affected_versions": ["1.4.3"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Golang template package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/magnet-link": {
                 "affected_versions": ["4.0.4"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Magnet link package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/ngx-codemirror": {
                 "affected_versions": ["7.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Codemirror package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/ngx-csv": {
                 "affected_versions": ["6.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX CSV package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/ngx-emoji-mart": {
                 "affected_versions": ["9.2.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Emoji Mart package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/ngx-rightclick": {
                 "affected_versions": ["4.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Rightclick package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/qbittorrent": {
                 "affected_versions": ["9.7.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "QBittorrent package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/react-adsense": {
                 "affected_versions": ["2.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "React AdSense package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/shared-torrent": {
                 "affected_versions": ["6.3.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Shared Torrent package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/torrent-file": {
                 "affected_versions": ["4.1.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Torrent File package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/transmission": {
                 "affected_versions": ["7.3.1"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Transmission package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@ctrl/ts-base32": {
                 "affected_versions": ["4.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "TS Base32 package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "encounter-playground": {
                 "affected_versions": ["0.0.5"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Encounter Playground package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "json-rules-engine-simplified": {
                 "affected_versions": ["0.2.4", "0.2.1"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "JSON Rules Engine Simplified package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "koa2-swagger-ui": {
                 "affected_versions": ["5.11.2", "5.11.1"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Koa2 Swagger UI package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/gesturehandler": {
                 "affected_versions": ["2.0.35"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript Gesture Handler package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/sentry": {
                 "affected_versions": ["4.6.43"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript Sentry package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/text": {
                 "affected_versions": ["1.6.13"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript Text package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-collectionview": {
                 "affected_versions": ["6.0.6"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Collection View package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-drawer": {
                 "affected_versions": ["0.1.30"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Drawer package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-image": {
                 "affected_versions": ["4.5.6"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Image package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-material-bottomsheet": {
                 "affected_versions": ["7.2.72"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Material Bottom Sheet package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-material-core": {
                 "affected_versions": ["7.2.76"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Material Core package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "@nativescript-community/ui-material-core-tabs": {
                 "affected_versions": ["7.2.76"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NativeScript UI Material Core Tabs package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "ngx-color": {
                 "affected_versions": ["10.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Color package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "ngx-toastr": {
                 "affected_versions": ["19.0.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Toastr package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "ngx-trend": {
                 "affected_versions": ["8.0.1"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "NGX Trend package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "react-complaint-image": {
                 "affected_versions": ["0.0.35"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "React Complaint Image package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "react-jsonschema-form-conditionals": {
                 "affected_versions": ["0.3.21"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "React JSON Schema Form Conditionals package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "react-jsonschema-form-extras": {
                 "affected_versions": ["1.0.4"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "React JSON Schema Form Extras package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "rxnt-authentication": {
                 "affected_versions": ["0.0.6"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "RXNT Authentication package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "rxnt-healthchecks-nestjs": {
                 "affected_versions": ["1.0.5"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "RXNT Healthchecks NestJS package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "rxnt-kue": {
                 "affected_versions": ["1.0.7"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "RXNT Kue package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "swc-plugin-component-annotate": {
                 "affected_versions": ["1.9.2"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "SWC Plugin Component Annotate package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
             },
             "ts-gaussian": {
                 "affected_versions": ["3.0.6"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "TS Gaussian package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
@@ -425,7 +425,7 @@ class FinalNPMSecurityAuditor:
             # Additional packages that may be affected
             "tinycolor": {
                 "affected_versions": ["*"],
-                "attack_date": "2024-09-16",
+                "attack_date": "2025-09-16",
                 "description": "Tinycolor package compromised with advanced malware",
                 "severity": "HIGH",
                 "weekly_downloads": "Unknown"
@@ -553,9 +553,9 @@ class FinalNPMSecurityAuditor:
             elif vuln['severity'] == 'HIGH':
                 results['high_vulnerabilities'] += 1
             
-            if vuln['attack_info']['attack_date'] == '2024-09-08':
+            if vuln['attack_info']['attack_date'] == '2025-09-08':
                 results['attack_1_vulnerabilities'] += 1
-            elif vuln['attack_info']['attack_date'] == '2024-09-16':
+            elif vuln['attack_info']['attack_date'] == '2025-09-16':
                 results['attack_2_vulnerabilities'] += 1
         
         return results
