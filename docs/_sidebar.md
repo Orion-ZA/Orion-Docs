@@ -13,5 +13,6 @@
   - [Third-party Code](3rd-party)
   - [API Documentation](api)
   - [Testing](testing)
+  - [Security Audit](security-audit)
   - [Meetings](meetings)
   - [User Feedback](user-feedback)
