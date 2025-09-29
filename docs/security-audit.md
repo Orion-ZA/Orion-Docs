@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive security audit of the Orion project in response to two significant NPM supply chain attacks that occurred in September 2024. The audit covers the analysis of compromised packages, assessment of our project's vulnerability, and recommendations for preventing future supply chain attacks.
+This document provides a comprehensive security audit of the Orion project in response to two significant NPM supply chain attacks that occurred in September 2025. The audit covers the analysis of compromised packages, assessment of our project's vulnerability, and recommendations for preventing future supply chain attacks.
 
 ## 1. Supply Chain Attack Analysis
 
@@ -294,7 +294,7 @@ While Orion is not affected by the tinycolor attack, the malware capabilities di
 
 ## 6. Conclusion
 
-**SECURITY ASSESSMENT**: **EXCELLENT NEWS** - The Orion project is **COMPLETELY SAFE** from both NPM supply chain attacks that occurred in September 2024. Our comprehensive final audit using the complete list of 58 compromised packages found **ZERO vulnerabilities** in the Orion project.
+**SECURITY ASSESSMENT**: **EXCELLENT NEWS** - The Orion project is **COMPLETELY SAFE** from both NPM supply chain attacks that occurred in September 2025. Our comprehensive final audit using the complete list of 58 compromised packages found **ZERO vulnerabilities** in the Orion project.
 
 **Key Findings:**
 - **Attack 1**: ✅ **SAFE** - No vulnerabilities found
