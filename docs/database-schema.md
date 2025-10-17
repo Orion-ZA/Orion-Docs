@@ -24,12 +24,16 @@
 
 - **Reviews Subcollection (under each Trail document)**
   - **Document Fields:**
-    - `userId`: Reference to User document
+    - `id`: String (UUID generated client-side)
+    - `userId`: String (Firebase Auth UID)
+    - `userName`: String (display name or email, can be "Anonymous")
+    - `userEmail`: String (user's email address for reference)
     - `rating`: Number (1-5)
-    - `comment`: String
-    - `photos`: Array of Strings (URLs to Firebase Storage)
-    - `timestamp`: Timestamp
-  - **Purpose**: Captures user reviews and media linked to specific trails.
+    - `comment`: String (review text content)
+    - `message`: String (alternative field name for comment, used in some components)
+    - `timestamp`: String (ISO 8601 timestamp)
+    - `photos`: Array of Strings (URLs to Firebase Storage) - *Note: Currently not implemented in submission*
+  - **Purpose**: Captures user reviews and ratings linked to specific trails. Supports both authenticated and anonymous submissions.
 
 - **Users Collection**
   - **Document Fields:**
@@ -52,7 +56,7 @@
 
 ### Relationships
 - **Trails to Users**: `createdBy` references the creating User; `submittedTrails` in Users links back.
-- **Trails to Reviews**: Nested subcollection with `userId` referencing Users.
+- **Trails to Reviews**: Nested subcollection with `userId` containing Firebase Auth UID (not document reference).
 - **Users to Trails**: Arrays (`favourites`, `completed`, `wishlist`, `submittedTrails`) hold Trail references.
 - **Trails to Alerts**: `trailId` references the associated Trail.
 
