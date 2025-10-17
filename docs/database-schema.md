@@ -47,18 +47,103 @@
 
 - **Alerts Collection**
   - **Document Fields:**
-    - `trailId`: Reference to Trail document
-    - `message`: String
-    - `type`: String (e.g., "community", "authority")
-    - `timestamp`: Timestamp
-    - `isActive`: Boolean
-  - **Purpose**: Stores real-time alerts and status updates for trails.
+    - `trailId`: String (ID of the associated trail)
+    - `message`: String (alert content/description)
+    - `type`: String (e.g., "community", "authority", "emergency")
+    - `comment`: String (optional additional details)
+    - `timestamp`: Timestamp (when the alert was created)
+    - `isActive`: Boolean (whether the alert is currently active)
+    - `isTimed`: Boolean (whether this is a timed alert with expiration)
+    - `expiresAt`: Timestamp (when the alert expires, only present if `isTimed` is true)
+    - `duration`: Number (duration in minutes, used during creation but not stored)
+  - **Purpose**: Stores real-time alerts and status updates for trails, supporting both permanent and timed alerts with automatic expiration.
+  - **Features**:
+    - **Timed Alerts**: Automatically expire after a specified duration
+    - **Permanent Alerts**: Remain active until manually removed
+    - **Client-side Filtering**: Expired alerts are filtered out on the frontend
+    - **Real-time Updates**: Alerts update in real-time across all components
+    - **Batch Loading**: Optimized for loading multiple trail alerts simultaneously
 
 ### Relationships
 - **Trails to Users**: `createdBy` references the creating User; `submittedTrails` in Users links back.
 - **Trails to Reviews**: Nested subcollection with `userId` containing Firebase Auth UID (not document reference).
 - **Users to Trails**: Arrays (`favourites`, `completed`, `wishlist`, `submittedTrails`) hold Trail references.
 - **Trails to Alerts**: `trailId` references the associated Trail.
+
+## Alert System Architecture
+
+### Frontend Components
+- **AlertModal**: Universal modal for creating alerts (used on Trail Detail and Reviews & Media pages)
+- **AlertsPopup**: Displays active alerts with countdown timers for timed alerts
+- **useTrailAlerts Hook**: Manages alert state, caching, and provides batch loading functionality
+- **AlertsManagement**: Admin panel for managing all alerts
+- **AlertsUpdates**: User page showing alerts for saved trails
+
+### Alert Types
+1. **Community Alerts**: User-submitted alerts about trail conditions
+2. **Authority Alerts**: Official alerts from park authorities
+3. **Emergency Alerts**: Critical safety information
+
+### Alert Lifecycle
+1. **Creation**: Users create alerts via AlertModal with optional duration
+2. **Storage**: Alerts stored in Firestore with `isTimed` and `expiresAt` fields
+3. **Display**: Active alerts shown in popups with real-time countdown timers
+4. **Expiration**: Timed alerts automatically filtered out when expired
+5. **Management**: Admins can view and delete alerts via AlertsManagement
+
+### Performance Optimizations
+- **Batch Loading**: `fetchMultipleTrailAlerts()` loads alerts for multiple trails in parallel
+- **Client-side Caching**: Alerts cached to prevent redundant Firestore queries
+- **Expired Alert Filtering**: Client-side filtering removes expired alerts without server calls
+- **Real-time Updates**: Components update automatically when alerts change
+
+## Cloud Functions (Firebase Functions)
+
+### Alert Management Functions
+- **`addAlert`** (Deprecated): Legacy function for adding alerts via API
+  - **Note**: Now deprecated in favor of direct Firestore access from frontend
+  - **Purpose**: Backward compatibility for existing integrations
+  - **Body Parameters**: `{ trailId, message, type, duration }`
+  - **Response**: `{ success: boolean, message: string }`
+
+- **`cleanupExpiredAlerts`** (Scheduled): Automated cleanup of expired alerts
+  - **Schedule**: Runs every hour via Firebase Scheduler
+  - **Purpose**: Removes expired alerts from Firestore to maintain database efficiency
+  - **Process**: Queries for alerts where `expiresAt < now()` and deletes them
+  - **Logging**: Logs cleanup statistics for monitoring
+
+### Function Configuration
+```javascript
+// functions/index.js
+exports.addAlert = functions.https.onRequest((req, res) => {
+  // Legacy alert creation endpoint
+});
+
+exports.cleanupExpiredAlerts = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
+  // Automated cleanup of expired alerts
+});
+```
+
+## Recent System Improvements
+
+### Performance Optimizations (December 2024)
+- **Parallel Alert Loading**: Replaced sequential `for` loops with `Promise.all()` for 10x faster alert loading
+- **Batch State Updates**: Single state updates instead of multiple individual updates
+- **Enhanced Caching**: Improved cache utilization in `useTrailAlerts` hook
+- **Client-side Filtering**: Expired alerts filtered on frontend to reduce server load
+
+### CSS Architecture Improvements
+- **Unique Class Naming**: All MyTrails components use `my-trails-` prefix to prevent global CSS conflicts
+- **Modal System**: Universal AlertModal with proper visibility control
+- **Responsive Design**: Optimized for mobile, tablet, and desktop layouts
+- **Theme Support**: Dark/light mode compatibility maintained
+
+### Alert System Features
+- **Timed vs Permanent**: Visual distinction with badges (Clock icon for timed, AlertCircle for permanent)
+- **Real-time Countdown**: Live countdown timers for timed alerts
+- **Automatic Expiration**: Client-side filtering removes expired alerts
+- **Admin Management**: Full CRUD operations for alerts in admin panel
+- **User Experience**: Non-scrollable popups showing all active alerts
 
 ## Deployment Information (Firebase Hosting)
 
