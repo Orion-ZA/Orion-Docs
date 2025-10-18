@@ -592,6 +592,504 @@ GET /api/trails/near?latitude=-26.2041&longitude=28.0473&maxDistance=5000
 
 ---
 
+## 👤 User Management & Trail Interactions
+
+### POST /api/users/favourites/add
+Add a trail to user's favourites.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail added to favourites successfully"
+}
+```
+
+### POST /api/users/favourites/remove
+Remove a trail from user's favourites.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail removed from favourites successfully"
+}
+```
+
+### POST /api/users/wishlist/add
+Add a trail to user's wishlist.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail added to wishlist successfully"
+}
+```
+
+### POST /api/users/wishlist/remove
+Remove a trail from user's wishlist.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail removed from wishlist successfully"
+}
+```
+
+### POST /api/users/completed
+Mark a trail as completed.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail marked as completed successfully"
+}
+```
+
+### POST /api/users/completed/remove
+Remove a trail from completed list.
+
+**Request Body:**
+```json
+{
+  "userId": "user123",
+  "trailId": "trail123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Trail removed from completed successfully"
+}
+```
+
+### GET /api/users/savedTrails
+Get all saved trails for a user (favourites, wishlist, completed).
+
+**Query Parameters:**
+- `userId` (string, required) - User ID
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "favourites": [
+      {
+        "id": "trail1",
+        "name": "Mountain Trail",
+        "distance": 8.5,
+        "difficulty": "Hard"
+      }
+    ],
+    "wishlist": [
+      {
+        "id": "trail2",
+        "name": "Forest Trail",
+        "distance": 5.2,
+        "difficulty": "Easy"
+      }
+    ],
+    "completed": [
+      {
+        "id": "trail3",
+        "name": "Lake Trail",
+        "distance": 6.3,
+        "difficulty": "Moderate"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 🚨 Alert Management
+
+### POST /api/alerts
+Create a new alert for a trail.
+
+**Request Body:**
+```json
+{
+  "trailId": "trail123",
+  "message": "Trail closed due to flooding",
+  "type": "emergency",
+  "comment": "Expected to reopen in 2 days",
+  "isTimed": true,
+  "duration": 2880
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Alert created successfully",
+  "data": {
+    "id": "alert123",
+    "trailId": "trail123",
+    "message": "Trail closed due to flooding",
+    "type": "emergency",
+    "comment": "Expected to reopen in 2 days",
+    "isActive": true,
+    "isTimed": true,
+    "expiresAt": "2024-01-17T10:30:00.000Z",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### GET /api/alerts/trail
+Get all alerts for a specific trail.
+
+**Query Parameters:**
+- `trailId` (string, required) - Trail ID
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "alert123",
+      "trailId": "trail123",
+      "message": "Trail closed due to flooding",
+      "type": "emergency",
+      "isActive": true,
+      "timestamp": "2024-01-15T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+### GET /api/alerts
+Get all alerts with pagination and filtering (Admin).
+
+**Query Parameters:**
+- `page` (number, optional) - Page number (default: 1)
+- `limit` (number, optional) - Items per page (default: 10)
+- `status` (string, optional) - Filter by status: `all`, `active`, `inactive`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "alert123",
+      "trailId": "trail123",
+      "message": "Trail maintenance in progress",
+      "type": "authority",
+      "isActive": true,
+      "timestamp": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 25,
+    "pages": 3
+  }
+}
+```
+
+### PUT /api/alerts/{alertId}
+Update an alert.
+
+**Request Body:**
+```json
+{
+  "message": "Updated alert message",
+  "isActive": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Alert updated successfully"
+}
+```
+
+### DELETE /api/alerts/{alertId}
+Delete an alert.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Alert deleted successfully"
+}
+```
+
+---
+
+## ⭐ Review Management
+
+### POST /api/reviews
+Create a new review for a trail.
+
+**Request Body:**
+```json
+{
+  "trailId": "trail123",
+  "review": {
+    "id": "review123",
+    "userId": "user123",
+    "userName": "John Doe",
+    "userEmail": "john@example.com",
+    "rating": 5,
+    "comment": "Amazing trail with beautiful views!",
+    "photos": ["https://example.com/photo1.jpg"],
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Review created successfully",
+  "data": {
+    "id": "review123",
+    "userId": "user123",
+    "userName": "John Doe",
+    "rating": 5,
+    "comment": "Amazing trail with beautiful views!",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### GET /api/reviews
+Get all reviews for a specific trail.
+
+**Query Parameters:**
+- `trailId` (string, required) - Trail ID
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "review123",
+      "userId": "user123",
+      "userName": "John Doe",
+      "rating": 5,
+      "comment": "Amazing trail with beautiful views!",
+      "timestamp": "2024-01-15T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+### PUT /api/reviews/{trailId}/{reviewId}
+Update a review.
+
+**Request Body:**
+```json
+{
+  "rating": 4,
+  "comment": "Updated review: Great trail but a bit crowded"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Review updated successfully"
+}
+```
+
+### DELETE /api/reviews/{trailId}/{reviewId}
+Delete a review.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Review deleted successfully"
+}
+```
+
+---
+
+## 📋 Report Management
+
+### POST /api/reports
+Create a new report.
+
+**Request Body:**
+```json
+{
+  "type": "trail",
+  "category": "safety_concern",
+  "description": "Loose rocks on the trail pose a safety hazard",
+  "priority": "high",
+  "additionalDetails": "Located near the 3km marker",
+  "trailId": "trail123",
+  "trailName": "Mountain Peak Trail",
+  "reporterId": "user123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Report created successfully",
+  "data": {
+    "id": "report123",
+    "type": "trail",
+    "category": "safety_concern",
+    "description": "Loose rocks on the trail pose a safety hazard",
+    "priority": "high",
+    "status": "pending",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### GET /api/reports
+Get all reports with pagination and filtering (Admin).
+
+**Query Parameters:**
+- `page` (number, optional) - Page number (default: 1)
+- `limit` (number, optional) - Items per page (default: 10)
+- `status` (string, optional) - Filter by status: `all`, `pending`, `reviewed`, `resolved`, `dismissed`
+- `type` (string, optional) - Filter by type: `all`, `trail`, `review`, `image`, `alert`, `general`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "report123",
+      "type": "trail",
+      "category": "safety_concern",
+      "description": "Loose rocks on the trail",
+      "priority": "high",
+      "status": "pending",
+      "trailName": "Mountain Peak Trail",
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 15,
+    "pages": 2
+  }
+}
+```
+
+### GET /api/reports/{reportId}
+Get a specific report by ID.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "report123",
+    "type": "trail",
+    "category": "safety_concern",
+    "description": "Loose rocks on the trail pose a safety hazard",
+    "priority": "high",
+    "status": "pending",
+    "trailId": "trail123",
+    "trailName": "Mountain Peak Trail",
+    "reporterId": "user123",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### PUT /api/reports/{reportId}
+Update a report.
+
+**Request Body:**
+```json
+{
+  "status": "resolved",
+  "priority": "medium"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Report updated successfully"
+}
+```
+
+### DELETE /api/reports/{reportId}
+Delete a report.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Report deleted successfully"
+}
+```
+
+---
+
 # Error Handling
 
 ## Firebase Cloud Functions API Errors
@@ -658,15 +1156,76 @@ GET /api/trails/near?latitude=-26.2041&longitude=28.0473&maxDistance=5000
 }
 ```
 
-## Review Object Structure
+## User Object Structure
+
+```json
+{
+  "id": "string (user ID)",
+  "profileInfo": {
+    "name": "string",
+    "email": "string (email format)",
+    "joinedDate": "string (ISO 8601 date-time)"
+  },
+  "submittedTrails": ["string (trail IDs)"],
+  "favourites": ["string (trail IDs)"],
+  "completed": ["string (trail IDs)"],
+  "wishlist": ["string (trail IDs)"]
+}
+```
+
+## Alert Object Structure
 
 ```json
 {
   "id": "string",
-  "user": "string (user ID)",
+  "trailId": "string",
+  "message": "string",
+  "type": "string (community|authority|emergency)",
+  "comment": "string (optional)",
+  "timestamp": "string (ISO 8601 date-time)",
+  "isActive": "boolean",
+  "isTimed": "boolean",
+  "expiresAt": "string (ISO 8601 date-time, only if isTimed is true)",
+  "duration": "number (minutes, used during creation but not stored)",
+  "lastUpdated": "string (ISO 8601 date-time)"
+}
+```
+
+## Review Object Structure
+
+```json
+{
+  "id": "string (UUID)",
+  "userId": "string (Firebase Auth UID)",
+  "userName": "string (display name or 'Anonymous')",
+  "userEmail": "string (email format)",
   "rating": "number (1-5)",
-  "comment": "string (max 1000 chars)",
-  "timestamp": "string (ISO 8601 date-time)"
+  "comment": "string (review text)",
+  "message": "string (alternative field for comment)",
+  "timestamp": "string (ISO 8601 date-time)",
+  "photos": ["string (photo URLs)"],
+  "lastUpdated": "string (ISO 8601 date-time)"
+}
+```
+
+## Report Object Structure
+
+```json
+{
+  "id": "string",
+  "type": "string (trail|review|image|alert|general)",
+  "category": "string (specific category based on type)",
+  "description": "string (detailed issue description)",
+  "priority": "string (low|medium|high|urgent)",
+  "additionalDetails": "string (optional)",
+  "targetId": "string (ID of reported item)",
+  "trailId": "string (associated trail ID)",
+  "trailName": "string (trail name for reference)",
+  "reporterId": "string (Firebase Auth UID)",
+  "status": "string (pending|reviewed|resolved|dismissed)",
+  "createdAt": "string (ISO 8601 date-time)",
+  "updatedAt": "string (ISO 8601 date-time)",
+  "timestamp": "string (ISO 8601 date-time, alternative field)"
 }
 ```
 
