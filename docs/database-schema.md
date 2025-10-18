@@ -64,11 +64,43 @@
     - **Real-time Updates**: Alerts update in real-time across all components
     - **Batch Loading**: Optimized for loading multiple trail alerts simultaneously
 
+- **Reports Collection**
+  - **Document Fields:**
+    - `type`: String (e.g., "trail", "review", "image", "alert", "general")
+    - `category`: String (specific category based on report type, e.g., "inaccurate_info", "safety_concern", "spam", "bug_report")
+    - `description`: String (detailed description of the issue being reported)
+    - `priority`: String (e.g., "low", "medium", "high", "urgent")
+    - `additionalDetails`: String (optional additional information)
+    - `targetId`: String (ID of the specific item being reported - review, image, alert, etc.)
+    - `trailId`: String (ID of the associated trail, if applicable)
+    - `trailName`: String (name of the trail for reference)
+    - `reporterId`: String (Firebase Auth UID of the user who submitted the report)
+    - `status`: String (e.g., "pending", "reviewed", "resolved", "dismissed")
+    - `createdAt`: Timestamp (when the report was created)
+    - `updatedAt`: Timestamp (when the report status was last updated)
+    - `timestamp`: String (ISO 8601 timestamp, alternative to createdAt)
+  - **Purpose**: Manages user-submitted reports for content moderation, safety concerns, and general feedback.
+  - **Report Types and Categories**:
+    - **Trail Reports**: inaccurate_info, safety_concern, accessibility, maintenance, inappropriate_content, duplicate, other
+    - **Review Reports**: inappropriate_content, spam, harassment, false_information, off_topic, other
+    - **Image Reports**: inappropriate_content, not_trail_related, poor_quality, duplicate, copyright_violation, other
+    - **Alert Reports**: false_information, outdated, inappropriate, spam, other
+    - **General Reports**: bug_report, feature_request, inappropriate_content, spam, other
+  - **Features**:
+    - **Admin Management**: Full CRUD operations via ReportsManagement component
+    - **Status Tracking**: Reports progress through pending → reviewed → resolved/dismissed workflow
+    - **Priority Levels**: Four-tier priority system (low, medium, high, urgent)
+    - **Filtering**: Reports can be filtered by status and type in admin interface
+    - **Real-time Updates**: Status changes update immediately across admin interface
+
 ### Relationships
 - **Trails to Users**: `createdBy` references the creating User; `submittedTrails` in Users links back.
 - **Trails to Reviews**: Nested subcollection with `userId` containing Firebase Auth UID (not document reference).
 - **Users to Trails**: Arrays (`favourites`, `completed`, `wishlist`, `submittedTrails`) hold Trail references.
 - **Trails to Alerts**: `trailId` references the associated Trail.
+- **Trails to Reports**: `trailId` references the associated Trail (when report is trail-related).
+- **Users to Reports**: `reporterId` contains Firebase Auth UID of the user who submitted the report.
+- **Reports to Content**: `targetId` references specific content being reported (reviews, images, alerts, etc.).
 
 ## Alert System Architecture
 
@@ -78,6 +110,28 @@
 - **useTrailAlerts Hook**: Manages alert state, caching, and provides batch loading functionality
 - **AlertsManagement**: Admin panel for managing all alerts
 - **AlertsUpdates**: User page showing alerts for saved trails
+
+## Reports System Architecture
+
+### Frontend Components
+- **ReportModal**: Universal modal for creating reports (supports trail, review, image, alert, and general reports)
+- **ReportsManagement**: Admin panel for managing all reports with filtering and status updates
+- **useTrailModals Hook**: Manages report submission and modal state
+- **ReportModal Integration**: Used across Trail Detail, Reviews & Media, and general feedback pages
+
+### Report Types
+1. **Trail Reports**: Issues with trail information, safety concerns, accessibility, maintenance needs
+2. **Review Reports**: Inappropriate content, spam, harassment, false information in reviews
+3. **Image Reports**: Inappropriate content, poor quality, copyright violations, off-topic images
+4. **Alert Reports**: False information, outdated alerts, inappropriate content in alerts
+5. **General Reports**: Bug reports, feature requests, general feedback, spam
+
+### Report Lifecycle
+1. **Creation**: Users create reports via ReportModal with specific categories and priority levels
+2. **Storage**: Reports stored in Firestore with `pending` status and server timestamp
+3. **Admin Review**: Admins view reports in ReportsManagement with filtering by status and type
+4. **Status Updates**: Reports progress through pending → reviewed → resolved/dismissed workflow
+5. **Management**: Admins can update status, delete reports, and track resolution progress
 
 ### Alert Types
 1. **Community Alerts**: User-submitted alerts about trail conditions
