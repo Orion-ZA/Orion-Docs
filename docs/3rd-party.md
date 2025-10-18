@@ -4,7 +4,9 @@ A place to document all our external libraries and third party code used through
 
 ------------------------------------------------------------------------
 
-## 1. Overview
+# 1. Mapbox Integration
+
+## 1.1 Overview
 
 -   **Library/Service Name**: Mapbox
 -   **Category**: Mapping & Geolocation
@@ -13,7 +15,7 @@ A place to document all our external libraries and third party code used through
 
 ------------------------------------------------------------------------
 
-## 2. Why We Use It
+## 1.2 Why We Use It
 
 Mapbox is a powerful mapping and location platform that gives us the
 flexibility and customization we need to build an AllTrails-like
@@ -35,7 +37,7 @@ control over map styles, interactivity, and data visualization.
 
 ------------------------------------------------------------------------
 
-## 3. Installation & Setup
+## 1.3 Installation & Setup
 
 ### Install dependencies
 
@@ -58,7 +60,7 @@ REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
 
 ------------------------------------------------------------------------
 
-## 4. How We Use It in Orion
+## 1.4 How We Use It in Orion
 
 ### Core Implementation
 
@@ -207,11 +209,11 @@ We've implemented comprehensive testing for our Mapbox components:
 
 ------------------------------------------------------------------------
 
-## 5. Comparison to Alternatives
+## 1.5 Comparison to Alternatives
 
 ### Mapbox vs Google Maps
 
-  --------------------------------------------------------------------------
+  -------------------------------------------------------------------------
   Feature             Mapbox                      Google Maps
   ------------------- --------------------------- --------------------------
   **Customization**   Highly customizable styles  Limited customization
@@ -231,11 +233,11 @@ We've implemented comprehensive testing for our Mapbox components:
 
   **Use Case Fit**    Ideal for                   Best for general-purpose
                       trail/fitness/outdoor apps  navigation
-  --------------------------------------------------------------------------
+  -------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
-## 6. Current Implementation Status
+## 1.6 Current Implementation Status
 
 ### ✅ Completed Features
 
@@ -257,7 +259,7 @@ We've implemented comprehensive testing for our Mapbox components:
 
 ------------------------------------------------------------------------
 
-## 7. Risks & Considerations
+## 1.7 Risks & Considerations
 
 -   **API Limits**: Mapbox free tier has usage limits (50,000 map loads/month)
 -   **Token Security**: Environment variable management for production
@@ -274,7 +276,7 @@ We've implemented comprehensive testing for our Mapbox components:
 
 ------------------------------------------------------------------------
 
-## 8. Conclusion
+## 1.8 Conclusion
 
 For our AllTrails clone, **Mapbox has proven to be the right choice** because:
 
@@ -285,3 +287,598 @@ For our AllTrails clone, **Mapbox has proven to be the right choice** because:
 - ✅ **Performance**: Smooth WebGL rendering even with complex overlays
 
 Our current implementation successfully provides a professional, scalable, and user-friendly mapping solution that enhances the hiking/trails experience in our Orion application.
+
+------------------------------------------------------------------------
+
+# 2. Achievements API Integration
+
+## 2.1 Overview
+
+-   **Service Name**: Hiking Logbook Badges API
+-   **Category**: Gamification & User Engagement
+-   **Purpose**: Provides hiking achievement badges and gamification features to enhance user engagement and motivation.
+
+------------------------------------------------------------------------
+
+## 2.2 Why We Use It
+
+The Hiking Logbook Badges API provides a comprehensive gamification system that:
+
+- **Motivates Users**: Achievement badges encourage users to explore more trails and complete hiking challenges
+- **Social Engagement**: Users can compare achievements and compete with friends
+- **Progress Tracking**: Visual representation of hiking accomplishments
+- **Category Organization**: Badges are organized by categories (achievement, exploration, endurance, etc.)
+- **Difficulty Levels**: Badges have different difficulty levels (standard, intermediate, advanced, expert)
+
+### Collaborative Partnership
+
+This integration represents a **mutual collaboration** between our Orion team and the Hiking Logbook team. Not only do we consume their badges API, but we also **provided them with access to our Orion API** for their hiking logbook application. 
+
+The Hiking Logbook team was incredibly **professional and responsive** throughout our collaboration. They provided:
+- **Clear API Documentation**: Well-structured endpoints with comprehensive response formats
+- **Reliable Service**: Consistent uptime and performance
+- **Quick Support**: Fast response times to any questions or issues
+- **Mutual Respect**: They were equally excited to integrate our trail data into their platform
+
+This kind of **developer-to-developer collaboration** showcases the best aspects of the tech community, where teams help each other build better products rather than competing in isolation.
+
+------------------------------------------------------------------------
+
+## 2.3 API Details
+
+**Base URL**: `https://hiking-logbook-hezw.onrender.com/api/public/badges`
+
+**Endpoint**: `GET /api/public/badges`
+
+**Response Format**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "name": "First Steps",
+      "description": "Complete your first trail",
+      "category": "achievement",
+      "difficulty": "standard"
+    },
+    {
+      "name": "Distance Walker",
+      "description": "Hike 50+ kilometers total",
+      "category": "achievement", 
+      "difficulty": "intermediate"
+    }
+  ],
+  "totalBadges": 6,
+  "categories": ["achievement"],
+  "note": "Badges are earned automatically based on your hiking activity"
+}
+```
+
+------------------------------------------------------------------------
+
+## 2.4 How We Use It in Orion
+
+### Core Implementation
+
+Our achievements integration is handled through several key components:
+
+#### Badges API Service (`src/utils/badgesApi.js`)
+
+```javascript
+const BADGES_API_URL = 'https://hiking-logbook-hezw.onrender.com/api/public/badges';
+
+export const fetchBadges = async () => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    const response = await fetch(BADGES_API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Badges service not found');
+      } else if (response.status >= 500) {
+        throw new Error('Badges service is temporarily unavailable');
+      } else {
+        throw new Error(`Unable to fetch badges (${response.status})`);
+      }
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error('Badges service returned an error');
+    }
+    
+    return {
+      badges: data.data || [],
+      totalBadges: data.totalBadges || 0,
+      categories: data.categories || [],
+      note: data.note || ''
+    };
+  } catch (error) {
+    // Error handling with user-friendly messages
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your connection.');
+    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error. Please check your internet connection.');
+    }
+    
+    throw error;
+  }
+};
+```
+
+#### Achievements Page (`src/pages/AchievementsPage.js`)
+
+The achievements page displays all available badges with:
+- **Badge Icons**: Custom icons for each badge type (Trophy, Award, Star, etc.)
+- **Difficulty Colors**: Color-coded difficulty levels
+- **Statistics**: Total badges and categories count
+- **Error Handling**: Graceful fallback for API failures
+- **Retry Mechanism**: Users can retry failed requests
+
+#### Badges Section Component (`src/components/BadgesSection.js`)
+
+Used in the user profile to show:
+- **Preview**: First 3 badges in profile view
+- **View All Button**: Links to full achievements page
+- **Loading States**: Proper loading indicators
+- **Empty States**: Encouraging messages when no badges are available
+
+### Key Features We've Implemented
+
+1. **Badge Display System**:
+   - Icon mapping for different badge types
+   - Difficulty-based color coding
+   - Category organization
+
+2. **Error Handling**:
+   - Timeout management (10-second limit)
+   - Network error detection
+   - User-friendly error messages
+   - Retry functionality
+
+3. **User Experience**:
+   - Loading states during API calls
+   - Graceful degradation when API is unavailable
+   - Responsive design for mobile and desktop
+
+### Dependencies
+
+No additional dependencies required - uses native `fetch` API with AbortController for timeout management.
+
+### Testing Strategy
+
+- **Unit Tests**: `src/__tests__/badgesApi.test.js` covers API service functions
+- **Component Tests**: `src/__tests__/AchievementsPage.test.js` and `src/__tests__/BadgesSection.test.js`
+- **Error Scenarios**: Tests cover timeout, network errors, and API failures
+
+------------------------------------------------------------------------
+
+## 2.5 Current Implementation Status
+
+### ✅ Completed Features
+
+- **Badge Display**: Complete achievements page with all available badges
+- **Profile Integration**: Badges section in user profile
+- **Error Handling**: Comprehensive error management with retry functionality
+- **Loading States**: Proper loading indicators throughout the user journey
+- **Responsive Design**: Mobile and desktop optimized
+- **Icon System**: Custom icons for different badge types
+- **Difficulty Visualization**: Color-coded difficulty levels
+
+### 🔄 Future Enhancements
+
+- **Badge Progress**: Show progress toward earning badges
+- **Social Features**: Compare achievements with friends
+- **Badge Categories**: Expand beyond achievement badges
+- **Custom Badges**: Allow users to create custom challenges
+
+------------------------------------------------------------------------
+
+## 2.6 Risks & Considerations
+
+- **External Dependency**: Relies on third-party service availability
+- **API Rate Limits**: No current rate limiting, but should monitor usage
+- **Service Outages**: Graceful fallback when service is unavailable
+- **Data Consistency**: Badge data is read-only, no synchronization issues
+
+### Mitigation Strategies
+
+- Implement timeout handling to prevent hanging requests
+- Provide clear error messages to users
+- Cache badge data locally to reduce API calls
+- Monitor service health and implement fallback UI
+
+------------------------------------------------------------------------
+
+## 2.7 Conclusion
+
+The **Hiking Logbook Badges API integration** has been a tremendous success for our Orion application. Not only does it provide valuable gamification features that enhance user engagement, but it also represents the power of **collaborative development** in the tech community.
+
+The partnership with the Hiking Logbook team exemplifies how:
+- ✅ **Mutual Benefit**: Both teams gain value from sharing APIs
+- ✅ **Professional Collaboration**: Clear communication and reliable service delivery
+- ✅ **Community Spirit**: Developers helping developers build better products
+- ✅ **Innovation**: Cross-platform integrations create richer user experiences
+
+This integration successfully adds gamification elements to our trail platform while fostering positive relationships within the development community.
+
+------------------------------------------------------------------------
+
+# 3. Weather API Integration
+
+## 3.1 Overview
+
+-   **Service Name**: OpenWeatherMap API
+-   **Category**: Weather Data & Forecasting
+-   **Purpose**: Provides current weather and forecast data for trail locations to help hikers plan their outdoor activities.
+
+------------------------------------------------------------------------
+
+## 3.2 Why We Use It
+
+OpenWeatherMap provides reliable weather data that:
+
+- **Trail Planning**: Helps hikers make informed decisions about trail conditions
+- **Safety**: Weather information is crucial for outdoor safety
+- **User Experience**: Enhances trail details with relevant environmental data
+- **Forecast Data**: Provides multi-day forecasts for trip planning
+- **Global Coverage**: Works worldwide for all trail locations
+- **Free Tier**: Generous free tier suitable for our current usage
+
+------------------------------------------------------------------------
+
+## 3.3 API Details
+
+**Base URL**: `https://api.openweathermap.org/data/2.5/`
+
+**Endpoints Used**:
+- `GET /forecast` - 5-day weather forecast
+- `GET /weather` - Current weather (fallback)
+
+**API Key**: `824bc28d7c314a9f031ecbe01823dbb8` (fallback key in code)
+
+**Request Format**:
+```
+https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric
+```
+
+**Response Format**:
+```json
+{
+  "list": [
+    {
+      "dt": 1640995200,
+      "main": {
+        "temp": 15.5,
+        "temp_min": 12.3,
+        "temp_max": 18.7,
+        "humidity": 65
+      },
+      "weather": [
+        {
+          "main": "Clear",
+          "description": "clear sky"
+        }
+      ],
+      "wind": {
+        "speed": 3.2
+      }
+    }
+  ]
+}
+```
+
+------------------------------------------------------------------------
+
+## 3.4 How We Use It in Orion
+
+### Core Implementation
+
+Our weather integration is seamlessly integrated into the trail details experience:
+
+#### Weather API Service (`src/utils/trailApi.js`)
+
+```javascript
+export const fetchWeatherData = async (latitude, longitude) => {
+  const API_KEY = process.env.REACT_APP_OPENWEATHER_API_KEY || '824bc28d7c314a9f031ecbe01823dbb8';
+  
+  const response = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+  );
+  
+  if (response.ok) {
+    const data = await response.json();
+    return processWeatherData(data);
+  } else {
+    // Fallback to current weather
+    const currentResponse = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+    );
+    
+    if (currentResponse.ok) {
+      const currentData = await currentResponse.json();
+      return [{
+        date: new Date().toDateString(),
+        minTemp: Math.round(currentData.main.temp_min),
+        maxTemp: Math.round(currentData.main.temp_max),
+        condition: currentData.weather[0].main,
+        humidity: currentData.main.humidity,
+        windSpeed: Math.round(currentData.wind.speed)
+      }];
+    }
+    throw new Error('Failed to fetch weather data');
+  }
+};
+
+const processWeatherData = (data) => {
+  const dailyForecasts = {};
+  
+  data.list.forEach((item) => {
+    const date = new Date(item.dt * 1000).toDateString();
+    
+    if (!dailyForecasts[date]) {
+      dailyForecasts[date] = {
+        date,
+        temps: [],
+        conditions: [],
+        humidity: [],
+        windSpeed: []
+      };
+    }
+    
+    dailyForecasts[date].temps.push(item.main.temp);
+    dailyForecasts[date].conditions.push(item.weather[0].main);
+    dailyForecasts[date].humidity.push(item.main.humidity);
+    dailyForecasts[date].windSpeed.push(item.wind.speed);
+  });
+
+  return Object.values(dailyForecasts).slice(0, 7).map(day => ({
+    date: day.date,
+    minTemp: Math.min(...day.temps),
+    maxTemp: Math.max(...day.temps),
+    condition: day.conditions[0],
+    humidity: Math.round(day.humidity.reduce((a, b) => a + b, 0) / day.humidity.length),
+    windSpeed: Math.round(day.windSpeed.reduce((a, b) => a + b, 0) / day.windSpeed.length)
+  }));
+};
+```
+
+#### Weather Section Component (`src/components/trails/WeatherSection.js`)
+
+```javascript
+const WeatherSection = ({ weatherData, loadingWeather }) => {
+  const getWeatherIcon = (condition) => {
+    const conditionLower = condition.toLowerCase();
+    
+    if (conditionLower.includes('clear') || conditionLower.includes('sunny')) {
+      return <Sun size={24} className="weather-icon sun" />;
+    } else if (conditionLower.includes('cloud')) {
+      return <Cloud size={24} className="weather-icon cloud" />;
+    } else if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) {
+      return <CloudRain size={24} className="weather-icon rain" />;
+    } else if (conditionLower.includes('snow') || conditionLower.includes('sleet')) {
+      return <CloudSnow size={24} className="weather-icon snow" />;
+    } else if (conditionLower.includes('storm') || conditionLower.includes('thunder')) {
+      return <CloudRain size={24} className="weather-icon storm" />;
+    } else {
+      return <Cloud size={24} className="weather-icon default" />;
+    }
+  };
+
+  return (
+    <div className="trail-detail-weather-section">
+      <h3>Weather Forecast</h3>
+      {loadingWeather ? (
+        <div className="trail-detail-loading">
+          <div className="trail-detail-loading-spinner"></div>
+          Loading weather data...
+        </div>
+      ) : weatherData && weatherData.length > 0 ? (
+       <div className="trail-detail-weather-forecast">
+         {weatherData.map((day, index) => (
+           <div key={index} className="trail-detail-weather-day">
+             <div className="trail-detail-weather-header">
+               <div className="trail-detail-weather-date">
+                 {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
+               </div>
+               <div className="trail-detail-weather-icon">
+                 {getWeatherIcon(day.condition)}
+               </div>
+             </div>
+             
+             <div className="trail-detail-weather-temps">
+               <span className="trail-detail-weather-high">{Math.round(day.maxTemp)}°</span>
+               <span className="trail-detail-weather-low">{Math.round(day.minTemp)}°</span>
+             </div>
+             
+             <div className="trail-detail-weather-condition">{day.condition}</div>
+             
+             <div className="trail-detail-weather-details">
+               <div className="trail-detail-weather-detail-item">
+                 <Droplets size={14} />
+                 <span>{day.humidity}%</span>
+               </div>
+               <div className="trail-detail-weather-detail-item">
+                 <Wind size={14} />
+                 <span>{day.windSpeed} m/s</span>
+               </div>
+             </div>
+           </div>
+         ))}
+       </div>
+      ) : (
+        <div className="trail-detail-no-weather">
+          <p>Weather data not available for this location.</p>
+          <p style={{ fontSize: '12px', marginTop: '8px', opacity: 0.7 }}>
+            This could be due to API limits or location data issues.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+#### Integration in Trail Details (`src/hooks/useTrailContent.js`)
+
+```javascript
+// Fetch weather data
+const fetchWeather = async () => {
+  if (!trail?.location) return;
+  
+  setLoadingWeather(true);
+  try {
+    let latitude, longitude;
+    
+    if (typeof trail.location === 'object' && trail.location !== null) {
+      if (trail.location.latitude && trail.location.longitude) {
+        latitude = trail.location.latitude;
+        longitude = trail.location.longitude;
+      } else if (trail.location._latitude && trail.location._longitude) {
+        latitude = trail.location._latitude;
+        longitude = trail.location._longitude;
+      } else {
+        console.warn('Invalid location data for weather');
+        setLoadingWeather(false);
+        return;
+      }
+    } else {
+      console.warn('No location data available for weather');
+      setLoadingWeather(false);
+      return;
+    }
+
+    const weatherData = await fetchWeatherData(latitude, longitude);
+    setWeatherData(weatherData);
+  } catch (error) {
+    console.error('Error fetching weather:', error);
+    setWeatherData(null);
+  } finally {
+    setLoadingWeather(false);
+  }
+};
+
+// Effect for fetching weather when trail changes
+useEffect(() => {
+  if (trail?.location) {
+    fetchWeather();
+  }
+}, [trail?.location]);
+```
+
+### Key Features We've Implemented
+
+1. **Weather Display**:
+   - 7-day forecast with daily summaries
+   - Temperature ranges (min/max)
+   - Weather conditions with icons
+   - Humidity and wind speed data
+
+2. **Icon System**:
+   - Dynamic weather icons based on conditions
+   - Clear, Cloudy, Rainy, Snowy, Stormy conditions
+   - Consistent visual representation
+
+3. **Data Processing**:
+   - Aggregates hourly forecast data into daily summaries
+   - Calculates min/max temperatures
+   - Averages humidity and wind speed
+   - Handles timezone conversions
+
+4. **Error Handling**:
+   - Fallback to current weather if forecast fails
+   - Graceful degradation when API is unavailable
+   - Clear error messages for users
+
+5. **Location Handling**:
+   - Supports multiple location data formats
+   - Handles Firebase GeoPoint objects
+   - Validates coordinate data before API calls
+
+### Environment Configuration
+
+Add your OpenWeatherMap API key to environment variables:
+
+```bash
+REACT_APP_OPENWEATHER_API_KEY=your_openweather_api_key_here
+```
+
+### Dependencies
+
+- **Lucide React**: For weather icons (`Sun`, `Cloud`, `CloudRain`, `CloudSnow`, `Wind`, `Droplets`)
+- **Native Fetch API**: For HTTP requests
+
+### Testing Strategy
+
+- **Unit Tests**: `src/__tests__/WeatherSection.test.js` covers component rendering
+- **Hook Tests**: `src/__tests__/useTrailContent.test.js` covers weather data fetching
+- **API Tests**: `src/__tests__/trailApi.test.js` covers weather API functions
+- **Error Scenarios**: Tests cover API failures and invalid location data
+
+------------------------------------------------------------------------
+
+## 3.5 Current Implementation Status
+
+### ✅ Completed Features
+
+- **7-Day Forecast**: Complete weather forecast display
+- **Weather Icons**: Dynamic icons based on conditions
+- **Temperature Display**: Min/max temperature ranges
+- **Additional Data**: Humidity and wind speed information
+- **Error Handling**: Fallback to current weather when forecast fails
+- **Loading States**: Proper loading indicators
+- **Location Support**: Multiple location data format support
+- **Responsive Design**: Mobile and desktop optimized
+
+### 🔄 Future Enhancements
+
+- **Weather Alerts**: Integration with severe weather warnings
+- **Historical Data**: Past weather conditions for trail reviews
+- **Weather Layers**: Overlay weather data on trail maps
+- **Personalized Forecasts**: Weather recommendations based on trail difficulty
+- **Offline Weather**: Cache weather data for offline viewing
+
+------------------------------------------------------------------------
+
+## 3.6 Risks & Considerations
+
+- **API Rate Limits**: OpenWeatherMap free tier has usage limits (1,000 calls/day)
+- **API Key Security**: API key is exposed in client-side code (acceptable for free tier)
+- **Service Dependency**: Relies on external weather service availability
+- **Location Data**: Requires valid coordinates for weather requests
+- **Data Accuracy**: Weather forecasts may not be 100% accurate
+
+### Mitigation Strategies
+
+- Monitor API usage through OpenWeatherMap dashboard
+- Implement caching to reduce API calls
+- Use fallback weather data when API is unavailable
+- Validate location data before making API requests
+- Consider upgrading to paid tier for higher limits
+
+------------------------------------------------------------------------
+
+## 3.7 Conclusion
+
+The **OpenWeatherMap API integration** has significantly enhanced our trail details experience by providing essential weather information that helps hikers make informed decisions about their outdoor adventures.
+
+This integration successfully provides:
+- ✅ **Safety Enhancement**: Weather data helps users plan safe hiking trips
+- ✅ **User Experience**: Rich, contextual information for trail planning
+- ✅ **Reliability**: Robust error handling and fallback mechanisms
+- ✅ **Performance**: Efficient data processing and caching strategies
+- ✅ **Global Coverage**: Weather data available for trails worldwide
+
+The weather integration demonstrates how third-party APIs can seamlessly enhance core application functionality while maintaining reliability and user experience standards.
