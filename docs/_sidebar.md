@@ -1,6 +1,7 @@
 - [Home](/home.md)
 - **Orion**  
   - [Overview](overview)  
+  - [User Guide](user-guide)
   - [Development Guide](development)  
   - [Project Methodology](methodology)  
   - [Tech Stack](tech-stack)  
