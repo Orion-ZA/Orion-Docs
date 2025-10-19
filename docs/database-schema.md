@@ -1,5 +1,13 @@
 # Database Schema and Deployment for Crowdsourced Hiking Information
 
+## Database Schema Overview
+
+The following UML diagram illustrates the complete database schema and relationships for the Orion hiking application:
+
+![Database Schema UML Diagram](../images/UML.png)
+
+*Figure 1: Complete database schema showing all collections, their attributes, and relationships*
+
 ## Database Schema (Firebase Firestore)
 
 ### Collections and Documents
