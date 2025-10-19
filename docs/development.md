@@ -795,3 +795,1203 @@ Deploy your updated functions:
 ```bash
 firebase deploy --only functions
 ```
+
+## 🚀 Express.js API Setup
+
+### 🏗️ Project Structure
+
+Create a new Express.js API project:
+
+```bash
+mkdir orion-api
+cd orion-api
+npm init -y
+```
+
+### 📦 Install Dependencies
+
+```bash
+# Core dependencies
+npm install express firebase-admin cors helmet express-rate-limit joi dotenv express-validator multer compression morgan
+
+# Development dependencies
+npm install --save-dev nodemon jest supertest eslint
+
+# Documentation
+npm install swagger-jsdoc swagger-ui-express
+```
+
+### ⚙️ Project Structure
+
+```
+orion-api/
+├── src/
+│   ├── app.js                 # Main application file
+│   ├── config/
+│   │   ├── database.js        # Firebase configuration
+│   │   └── swagger.js         # Swagger documentation
+│   ├── controllers/
+│   │   ├── trailController.js # Trail CRUD operations
+│   │   ├── userController.js  # User management
+│   │   ├── alertController.js # Trail alerts
+│   │   ├── reviewController.js # Trail reviews
+│   │   └── reportController.js # Trail reports
+│   ├── middleware/
+│   │   └── errorHandler.js    # Error handling middleware
+│   ├── models/
+│   │   ├── Trail.js          # Trail model and validation
+│   │   └── User.js           # User model and validation
+│   ├── routes/
+│   │   ├── trailRoutes.js    # Trail API routes
+│   │   ├── userRoutes.js     # User API routes
+│   │   ├── alertRoutes.js    # Alert API routes
+│   │   ├── reviewRoutes.js   # Review API routes
+│   │   └── reportRoutes.js   # Report API routes
+│   └── validation/
+│       └── trailValidation.js # Joi validation schemas
+├── tests/
+│   └── trail.test.js         # API tests
+├── package.json
+├── .env                      # Environment variables
+├── .gitignore
+├── Procfile                  # For Render deployment
+├── Dockerfile               # For containerized deployment
+└── README.md
+```
+
+### 🔥 Firebase Admin SDK Setup
+
+1) **Create Firebase Service Account**
+
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Select your project → Project Settings → Service Accounts
+   - Click "Generate new private key"
+   - Download the JSON file
+
+2) **Set up Environment Variables**
+
+   Create `.env` file:
+
+   ```env
+   # Server Configuration
+   PORT=3000
+   NODE_ENV=development
+
+   # Firebase Configuration
+   FIREBASE_PROJECT_ID=your-firebase-project-id
+   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+   FIREBASE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+   FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket.appspot.com
+
+   # Security
+   JWT_SECRET=your-super-secret-jwt-key-here
+   API_RATE_LIMIT=100
+
+   # CORS
+   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://orion-sdp.web.app
+   ```
+
+3) **Create Database Configuration**
+
+   Create `src/config/database.js`:
+
+   ```javascript
+   const admin = require('firebase-admin');
+
+   let db = null;
+
+   const connectDB = async () => {
+     try {
+       // Initialize Firebase Admin SDK
+       if (!admin.apps.length) {
+         const serviceAccount = {
+           projectId: process.env.FIREBASE_PROJECT_ID,
+           privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+         };
+
+         admin.initializeApp({
+           credential: admin.credential.cert(serviceAccount),
+           storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+         });
+       }
+
+       // Get Firestore instance
+       db = admin.firestore();
+       
+       // Test connection
+       await db.collection('Trails').limit(1).get();
+       
+       console.log('🔥 Firebase Firestore Connected');
+     } catch (error) {
+       console.error('❌ Firebase connection error:', error.message);
+       process.exit(1);
+     }
+   };
+
+   // Get Firestore instance
+   const getDB = () => {
+     if (!db) {
+       throw new Error('Database not initialized. Call connectDB() first.');
+     }
+     return db;
+   };
+
+   // Get Firebase Admin instance
+   const getAdmin = () => {
+     return admin;
+   };
+
+   // Graceful shutdown
+   process.on('SIGINT', async () => {
+     console.log('🔌 Firebase connection closed through app termination');
+     process.exit(0);
+   });
+
+   module.exports = { connectDB, getDB, getAdmin };
+   ```
+
+### 🚀 Express Application Setup
+
+Create `src/app.js`:
+
+```javascript
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
+
+const { connectDB } = require('./config/database');
+const trailRoutes = require('./routes/trailRoutes');
+const userRoutes = require('./routes/userRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const errorHandler = require('./middleware/errorHandler');
+const swaggerSpecs = require('./config/swagger');
+const swaggerUi = require('swagger-ui-express');
+
+const app = express();
+
+// Connect to Firebase Firestore
+connectDB();
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", "https://*.onrender.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginEmbedderPolicy: false
+}));
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.API_RATE_LIMIT || 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+      'https://orion-sdp.web.app'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // For development, allow any origin
+      if (process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+};
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
+// Logging
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health check endpoints
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+app.get('/health/db', async (req, res) => {
+  try {
+    const { getDB } = require('./config/database');
+    const db = getDB();
+    
+    // Test database connection
+    const testDoc = await db.collection('Trails').limit(1).get();
+    
+    res.status(200).json({
+      status: 'OK',
+      database: 'Connected',
+      timestamp: new Date().toISOString(),
+      trailsCount: testDoc.size,
+      message: 'Successfully connected to Trails collection'
+    });
+  } catch (error) {
+    console.error('Database health check failed:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      database: 'Disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Orion Trail API Documentation',
+  swaggerOptions: {
+    url: '/api-docs/swagger.json',
+    validatorUrl: null,
+    tryItOutEnabled: true
+  }
+}));
+
+// API routes
+app.use('/api/trails', trailRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/reports', reportRoutes);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Error handling middleware
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+});
+
+module.exports = app;
+```
+
+### 📝 Package.json Scripts
+
+Update your `package.json`:
+
+```json
+{
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest",
+    "lint": "eslint src/",
+    "build": "echo 'No build step required'",
+    "heroku-postbuild": "npm install"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
+```
+
+### 🧪 Testing Your API
+
+1) **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+2) **Test with curl:**
+
+   ```bash
+   # Health check
+   curl http://localhost:3000/health
+
+   # Create a trail
+   curl -X POST http://localhost:3000/api/trails \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "Test Trail",
+       "location": {"latitude": 40.7128, "longitude": -74.0060},
+       "distance": 3.5,
+       "elevationGain": 500,
+       "difficulty": "Easy",
+       "description": "A test trail",
+       "createdBy": "test-user"
+     }'
+
+   # Get all trails
+   curl http://localhost:3000/api/trails
+   ```
+
+3) **Access API Documentation:**
+
+   Visit: `http://localhost:3000/api-docs`
+
+## 🚀 Render Deployment
+
+### 📋 Prerequisites
+
+1. **GitHub Repository**: Push your code to GitHub
+2. **Render Account**: Sign up at [render.com](https://render.com)
+3. **Environment Variables**: Prepare your production environment variables
+
+### 🔧 Render Setup
+
+1) **Create New Web Service**
+
+   - Go to [Render Dashboard](https://dashboard.render.com/)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select your `orion-api` repository
+
+2) **Configure Service Settings**
+
+   ```
+   Name: orion-api
+   Environment: Node
+   Region: Oregon (US West)
+   Branch: main (or your default branch)
+   Root Directory: (leave empty)
+   Build Command: npm install
+   Start Command: npm start
+   ```
+
+3) **Set Environment Variables**
+
+   In the Render dashboard, go to Environment tab and add:
+
+   ```
+   NODE_ENV=production
+   PORT=10000
+   FIREBASE_PROJECT_ID=your-firebase-project-id
+   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+   FIREBASE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+   FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket.appspot.com
+   JWT_SECRET=your-super-secret-jwt-key-here
+   API_RATE_LIMIT=100
+   ALLOWED_ORIGINS=https://orion-sdp.web.app,https://your-render-url.onrender.com
+   ```
+
+4) **Deploy**
+
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your application
+   - You'll get a URL like: `https://orion-api-xyz.onrender.com`
+
+### 🔒 Production Security
+
+1) **Update CORS Settings**
+
+   Update your `src/app.js` CORS configuration:
+
+   ```javascript
+   const corsOptions = {
+     origin: function (origin, callback) {
+       if (!origin) return callback(null, true);
+       
+       const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+         'https://orion-sdp.web.app',
+         'https://your-render-url.onrender.com'
+       ];
+       
+       if (allowedOrigins.indexOf(origin) !== -1) {
+         callback(null, true);
+       } else {
+         callback(new Error('Not allowed by CORS'));
+       }
+     },
+     credentials: true,
+     optionsSuccessStatus: 200,
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+   };
+   ```
+
+2) **Environment-Specific Configuration**
+
+   Create `src/config/environment.js`:
+
+   ```javascript
+   const config = {
+     development: {
+       port: 3000,
+       cors: {
+         origin: true, // Allow all origins in development
+         credentials: true
+       },
+       logging: 'dev'
+     },
+     production: {
+       port: process.env.PORT || 10000,
+       cors: {
+         origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
+         credentials: true
+       },
+       logging: 'combined'
+     }
+   };
+
+   module.exports = config[process.env.NODE_ENV || 'development'];
+   ```
+
+### 📊 Monitoring & Health Checks
+
+1) **Health Check Endpoints**
+
+   Your API includes these health check endpoints:
+
+   ```bash
+   # Basic health check
+   curl https://your-api.onrender.com/health
+
+   # Database health check
+   curl https://your-api.onrender.com/health/db
+   ```
+
+2) **Render Monitoring**
+
+   - Render provides built-in monitoring
+   - Check logs in the Render dashboard
+   - Set up uptime monitoring
+   - Monitor response times and error rates
+
+### 🔄 Continuous Deployment
+
+1) **Automatic Deployments**
+
+   - Render automatically deploys when you push to your main branch
+   - Each deployment gets a unique URL for testing
+   - Production URL remains stable
+
+2) **Manual Deployments**
+
+   - Use Render dashboard to trigger manual deployments
+   - Rollback to previous versions if needed
+   - Preview deployments for pull requests
+
+### 🧪 Testing Your Live API
+
+1) **Test with curl:**
+
+   ```bash
+   # Health check
+   curl https://your-api.onrender.com/health
+
+   # Create a trail
+   curl -X POST https://your-api.onrender.com/api/trails \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "Live Test Trail",
+       "location": {"latitude": 40.7128, "longitude": -74.0060},
+       "distance": 3.5,
+       "elevationGain": 500,
+       "difficulty": "Easy",
+       "description": "Testing live API!",
+       "createdBy": "live-test-user"
+     }'
+
+   # Get all trails
+   curl https://your-api.onrender.com/api/trails
+   ```
+
+2) **Access Live Documentation:**
+
+   Visit: `https://your-api.onrender.com/api-docs`
+
+### 🚨 Troubleshooting
+
+1) **Common Issues:**
+
+   - **Build Failures**: Check your `package.json` scripts and dependencies
+   - **Environment Variables**: Ensure all required variables are set
+   - **CORS Errors**: Update `ALLOWED_ORIGINS` with your frontend URL
+   - **Database Connection**: Verify Firebase service account credentials
+
+2) **Debugging:**
+
+   - Check Render logs in the dashboard
+   - Use health check endpoints to verify connectivity
+   - Test locally with production environment variables
+
+### 📈 Performance Optimization
+
+1) **Enable Compression**
+
+   ```javascript
+   app.use(compression());
+   ```
+
+2) **Rate Limiting**
+
+   ```javascript
+   const limiter = rateLimit({
+     windowMs: 15 * 60 * 1000, // 15 minutes
+     max: 100, // limit each IP to 100 requests per windowMs
+     message: 'Too many requests from this IP, please try again later.'
+   });
+   app.use('/api/', limiter);
+   ```
+
+3) **Caching Headers**
+
+   ```javascript
+   app.use((req, res, next) => {
+     if (req.path.startsWith('/api/')) {
+       res.set('Cache-Control', 'no-cache');
+     }
+     next();
+   });
+   ```
+
+Your Express.js API is now deployed and ready to serve your React application!
+
+## 🔗 Connecting React App to Express API
+
+### 📡 API Service Setup
+
+1) **Create API Service in React App**
+
+   Create `src/services/api.js`:
+
+   ```javascript
+   const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://your-api.onrender.com';
+
+   class ApiService {
+     constructor() {
+       this.baseURL = API_BASE_URL;
+     }
+
+     async request(endpoint, options = {}) {
+       const url = `${this.baseURL}${endpoint}`;
+       const config = {
+         headers: {
+           'Content-Type': 'application/json',
+           ...options.headers,
+         },
+         ...options,
+       };
+
+       try {
+         const response = await fetch(url, config);
+         const data = await response.json();
+
+         if (!response.ok) {
+           throw new Error(data.message || 'Something went wrong');
+         }
+
+         return data;
+       } catch (error) {
+         console.error('API request failed:', error);
+         throw error;
+       }
+     }
+
+     // Trail endpoints
+     async getTrails(params = {}) {
+       const queryString = new URLSearchParams(params).toString();
+       return this.request(`/api/trails${queryString ? `?${queryString}` : ''}`);
+     }
+
+     async getTrail(id) {
+       return this.request(`/api/trails/${id}`);
+     }
+
+     async createTrail(trailData) {
+       return this.request('/api/trails', {
+         method: 'POST',
+         body: JSON.stringify(trailData),
+       });
+     }
+
+     async updateTrail(id, trailData) {
+       return this.request(`/api/trails/${id}`, {
+         method: 'PUT',
+         body: JSON.stringify(trailData),
+       });
+     }
+
+     async deleteTrail(id) {
+       return this.request(`/api/trails/${id}`, {
+         method: 'DELETE',
+       });
+     }
+
+     async searchTrails(query, filters = {}) {
+       const params = { q: query, ...filters };
+       const queryString = new URLSearchParams(params).toString();
+       return this.request(`/api/trails/search?${queryString}`);
+     }
+
+     async getTrailsNear(latitude, longitude, maxDistance = 10000) {
+       const params = { latitude, longitude, maxDistance };
+       const queryString = new URLSearchParams(params).toString();
+       return this.request(`/api/trails/near?${queryString}`);
+     }
+
+     // Health check
+     async healthCheck() {
+       return this.request('/health');
+     }
+   }
+
+   export default new ApiService();
+   ```
+
+2) **Set Environment Variables**
+
+   Create `.env` file in your React app root:
+
+   ```env
+   REACT_APP_API_URL=https://your-api.onrender.com
+   REACT_APP_FIREBASE_API_KEY=your-api-key
+   REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+   REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+   REACT_APP_FIREBASE_STORAGE_BUCKET=your-bucket.appspot.com
+   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+   REACT_APP_FIREBASE_APP_ID=your-app-id
+   ```
+
+### 🎣 Custom Hooks for API Integration
+
+1) **Create Trail Hooks**
+
+   Create `src/hooks/useTrails.js`:
+
+   ```javascript
+   import { useState, useEffect } from 'react';
+   import apiService from '../services/api';
+
+   export const useTrails = (params = {}) => {
+     const [trails, setTrails] = useState([]);
+     const [loading, setLoading] = useState(true);
+     const [error, setError] = useState(null);
+     const [pagination, setPagination] = useState(null);
+
+     const fetchTrails = async (newParams = {}) => {
+       try {
+         setLoading(true);
+         setError(null);
+         const response = await apiService.getTrails({ ...params, ...newParams });
+         setTrails(response.data);
+         setPagination(response.pagination);
+       } catch (err) {
+         setError(err.message);
+       } finally {
+         setLoading(false);
+       }
+     };
+
+     useEffect(() => {
+       fetchTrails();
+     }, []);
+
+     return {
+       trails,
+       loading,
+       error,
+       pagination,
+       refetch: fetchTrails,
+     };
+   };
+
+   export const useTrail = (id) => {
+     const [trail, setTrail] = useState(null);
+     const [loading, setLoading] = useState(true);
+     const [error, setError] = useState(null);
+
+     useEffect(() => {
+       if (!id) return;
+
+       const fetchTrail = async () => {
+         try {
+           setLoading(true);
+           setError(null);
+           const response = await apiService.getTrail(id);
+           setTrail(response.data);
+         } catch (err) {
+           setError(err.message);
+         } finally {
+           setLoading(false);
+         }
+       };
+
+       fetchTrail();
+     }, [id]);
+
+     return { trail, loading, error };
+   };
+
+   export const useTrailActions = () => {
+     const [loading, setLoading] = useState(false);
+     const [error, setError] = useState(null);
+
+     const createTrail = async (trailData) => {
+       try {
+         setLoading(true);
+         setError(null);
+         const response = await apiService.createTrail(trailData);
+         return response.data;
+       } catch (err) {
+         setError(err.message);
+         throw err;
+       } finally {
+         setLoading(false);
+       }
+     };
+
+     const updateTrail = async (id, trailData) => {
+       try {
+         setLoading(true);
+         setError(null);
+         const response = await apiService.updateTrail(id, trailData);
+         return response.data;
+       } catch (err) {
+         setError(err.message);
+         throw err;
+       } finally {
+         setLoading(false);
+       }
+     };
+
+     const deleteTrail = async (id) => {
+       try {
+         setLoading(true);
+         setError(null);
+         await apiService.deleteTrail(id);
+       } catch (err) {
+         setError(err.message);
+         throw err;
+       } finally {
+         setLoading(false);
+       }
+     };
+
+     return {
+       createTrail,
+       updateTrail,
+       deleteTrail,
+       loading,
+       error,
+     };
+   };
+   ```
+
+2) **Create Search Hook**
+
+   Create `src/hooks/useTrailSearch.js`:
+
+   ```javascript
+   import { useState, useCallback } from 'react';
+   import apiService from '../services/api';
+
+   export const useTrailSearch = () => {
+     const [results, setResults] = useState([]);
+     const [loading, setLoading] = useState(false);
+     const [error, setError] = useState(null);
+
+     const searchTrails = useCallback(async (query, filters = {}) => {
+       if (!query.trim()) {
+         setResults([]);
+         return;
+       }
+
+       try {
+         setLoading(true);
+         setError(null);
+         const response = await apiService.searchTrails(query, filters);
+         setResults(response.data);
+       } catch (err) {
+         setError(err.message);
+         setResults([]);
+       } finally {
+         setLoading(false);
+       }
+     }, []);
+
+     const searchNearby = useCallback(async (latitude, longitude, maxDistance = 10000) => {
+       try {
+         setLoading(true);
+         setError(null);
+         const response = await apiService.getTrailsNear(latitude, longitude, maxDistance);
+         setResults(response.data);
+       } catch (err) {
+         setError(err.message);
+         setResults([]);
+       } finally {
+         setLoading(false);
+       }
+     }, []);
+
+     return {
+       results,
+       loading,
+       error,
+       searchTrails,
+       searchNearby,
+     };
+   };
+   ```
+
+### 🎨 React Components Using API
+
+1) **Trail List Component**
+
+   Create `src/components/TrailList.js`:
+
+   ```javascript
+   import React, { useState } from 'react';
+   import { useTrails } from '../hooks/useTrails';
+
+   const TrailList = () => {
+     const [filters, setFilters] = useState({
+       difficulty: '',
+       status: 'open',
+       page: 1,
+       limit: 10,
+     });
+
+     const { trails, loading, error, pagination, refetch } = useTrails(filters);
+
+     const handleFilterChange = (key, value) => {
+       setFilters(prev => ({
+         ...prev,
+         [key]: value,
+         page: 1, // Reset to first page when filters change
+       }));
+     };
+
+     const handlePageChange = (newPage) => {
+       setFilters(prev => ({ ...prev, page: newPage }));
+     };
+
+     if (loading) return <div>Loading trails...</div>;
+     if (error) return <div>Error: {error}</div>;
+
+     return (
+       <div>
+         <h2>Trails</h2>
+         
+         {/* Filters */}
+         <div className="filters">
+           <select
+             value={filters.difficulty}
+             onChange={(e) => handleFilterChange('difficulty', e.target.value)}
+           >
+             <option value="">All Difficulties</option>
+             <option value="Easy">Easy</option>
+             <option value="Moderate">Moderate</option>
+             <option value="Hard">Hard</option>
+             <option value="Expert">Expert</option>
+           </select>
+
+           <select
+             value={filters.status}
+             onChange={(e) => handleFilterChange('status', e.target.value)}
+           >
+             <option value="open">Open</option>
+             <option value="closed">Closed</option>
+             <option value="maintenance">Maintenance</option>
+             <option value="seasonal">Seasonal</option>
+           </select>
+         </div>
+
+         {/* Trail List */}
+         <div className="trail-list">
+           {trails.map((trail) => (
+             <div key={trail.id} className="trail-card">
+               <h3>{trail.name}</h3>
+               <p>{trail.description}</p>
+               <div className="trail-meta">
+                 <span>Distance: {trail.distance}km</span>
+                 <span>Elevation: {trail.elevationGain}m</span>
+                 <span>Difficulty: {trail.difficulty}</span>
+                 <span>Status: {trail.status}</span>
+               </div>
+             </div>
+           ))}
+         </div>
+
+         {/* Pagination */}
+         {pagination && (
+           <div className="pagination">
+             <button
+               disabled={pagination.page <= 1}
+               onClick={() => handlePageChange(pagination.page - 1)}
+             >
+               Previous
+             </button>
+             <span>
+               Page {pagination.page} of {pagination.pages}
+             </span>
+             <button
+               disabled={pagination.page >= pagination.pages}
+               onClick={() => handlePageChange(pagination.page + 1)}
+             >
+               Next
+             </button>
+           </div>
+         )}
+       </div>
+     );
+   };
+
+   export default TrailList;
+   ```
+
+2) **Trail Search Component**
+
+   Create `src/components/TrailSearch.js`:
+
+   ```javascript
+   import React, { useState } from 'react';
+   import { useTrailSearch } from '../hooks/useTrailSearch';
+
+   const TrailSearch = () => {
+     const [query, setQuery] = useState('');
+     const [filters, setFilters] = useState({
+       difficulty: '',
+       tags: '',
+     });
+
+     const { results, loading, error, searchTrails } = useTrailSearch();
+
+     const handleSearch = (e) => {
+       e.preventDefault();
+       searchTrails(query, filters);
+     };
+
+     return (
+       <div>
+         <h2>Search Trails</h2>
+         
+         <form onSubmit={handleSearch}>
+           <input
+             type="text"
+             value={query}
+             onChange={(e) => setQuery(e.target.value)}
+             placeholder="Search trails..."
+             required
+           />
+           
+           <select
+             value={filters.difficulty}
+             onChange={(e) => setFilters(prev => ({ ...prev, difficulty: e.target.value }))}
+           >
+             <option value="">All Difficulties</option>
+             <option value="Easy">Easy</option>
+             <option value="Moderate">Moderate</option>
+             <option value="Hard">Hard</option>
+             <option value="Expert">Expert</option>
+           </select>
+
+           <input
+             type="text"
+             value={filters.tags}
+             onChange={(e) => setFilters(prev => ({ ...prev, tags: e.target.value }))}
+             placeholder="Tags (comma-separated)"
+           />
+
+           <button type="submit" disabled={loading}>
+             {loading ? 'Searching...' : 'Search'}
+           </button>
+         </form>
+
+         {error && <div className="error">Error: {error}</div>}
+
+         {results.length > 0 && (
+           <div className="search-results">
+             <h3>Search Results ({results.length})</h3>
+             {results.map((trail) => (
+               <div key={trail.id} className="trail-card">
+                 <h4>{trail.name}</h4>
+                 <p>{trail.description}</p>
+                 <div className="trail-meta">
+                   <span>Distance: {trail.distance}km</span>
+                   <span>Difficulty: {trail.difficulty}</span>
+                 </div>
+               </div>
+             ))}
+           </div>
+         )}
+       </div>
+     );
+   };
+
+   export default TrailSearch;
+   ```
+
+### 🔧 Error Handling & Loading States
+
+1) **Create Error Boundary**
+
+   Create `src/components/ErrorBoundary.js`:
+
+   ```javascript
+   import React from 'react';
+
+   class ErrorBoundary extends React.Component {
+     constructor(props) {
+       super(props);
+       this.state = { hasError: false, error: null };
+     }
+
+     static getDerivedStateFromError(error) {
+       return { hasError: true, error };
+     }
+
+     componentDidCatch(error, errorInfo) {
+       console.error('Error caught by boundary:', error, errorInfo);
+     }
+
+     render() {
+       if (this.state.hasError) {
+         return (
+           <div className="error-boundary">
+             <h2>Something went wrong</h2>
+             <p>Please try refreshing the page or contact support if the problem persists.</p>
+             <button onClick={() => window.location.reload()}>
+               Refresh Page
+             </button>
+           </div>
+         );
+       }
+
+       return this.props.children;
+     }
+   }
+
+   export default ErrorBoundary;
+   ```
+
+2) **Create Loading Component**
+
+   Create `src/components/LoadingSpinner.js`:
+
+   ```javascript
+   import React from 'react';
+
+   const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
+     const sizeClass = `spinner-${size}`;
+     
+     return (
+       <div className="loading-container">
+         <div className={`spinner ${sizeClass}`}></div>
+         <p className="loading-message">{message}</p>
+       </div>
+     );
+   };
+
+   export default LoadingSpinner;
+   ```
+
+### 🎯 Usage in App.js
+
+Update your `src/App.js`:
+
+```javascript
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
+import TrailList from './components/TrailList';
+import TrailSearch from './components/TrailSearch';
+import './App.css';
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <Router>
+        <div className="App">
+          <header>
+            <h1>Orion Trail App</h1>
+          </header>
+          
+          <main>
+            <Routes>
+              <Route path="/" element={<TrailList />} />
+              <Route path="/trails" element={<TrailList />} />
+              <Route path="/search" element={<TrailSearch />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </ErrorBoundary>
+  );
+}
+
+export default App;
+```
+
+### 🧪 Testing the Integration
+
+1) **Test API Connection**
+
+   ```bash
+   # In your React app directory
+   npm start
+   ```
+
+2) **Verify API Calls**
+
+   - Open browser dev tools → Network tab
+   - Navigate through your app
+   - Check that API calls are being made to your Render URL
+   - Verify responses are coming back correctly
+
+3) **Test Error Handling**
+
+   - Temporarily change `REACT_APP_API_URL` to an invalid URL
+   - Verify error states are displayed properly
+   - Restore correct URL
+
+Your React app is now fully integrated with your Express.js API deployed on Render!
