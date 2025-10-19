@@ -11,6 +11,10 @@
 ## Frontend  
 - **Framework**: React
 - **Styling**: ~~TailwindCSS~~ → Vanilla CSS 
+- **Maps**: Mapbox GL JS
+  - **Why?** Interactive trail maps with location selection, map controls, and trail discovery capabilities. Provides high-quality mapping with custom styling and real-time data integration.
+- **Weather Integration**: Weather API Service
+  - **Why?** Real-time weather data for trail locations, multi-day forecasts, and weather-based trail recommendations for hiker safety.
 - **Why?** React is a powerful library for building dynamic user interfaces, and Tailwind CSS allows for rapid, utility-first styling. This combination will help us create a responsive design that works across all devices. We are all just very comfortable with React so it was a no brainer. 
 
 ## APIs  
@@ -50,7 +54,61 @@
 
 - **Decision**: As of 12/08/2025 we have chosen to use Firebase Cloud Functions however it is a pay as you go service so if this doesn't suit sour needs and becomes expensive we will ultimately switch to the classic Node.js and Express.
 
+## Development Tools & Code Quality
+
+### **Code Formatting & Linting**
+- **Prettier**: Code formatter for consistent code style
+  - **Why?** Ensures consistent formatting across the entire codebase, reduces code review time, and improves team collaboration.
+- **ESLint**: JavaScript/React linting and code quality
+  - **Why?** Catches potential bugs, enforces coding standards, and maintains code quality across the project.
+- **Custom Linter**: Comprehensive code analysis tool
+  - **Why?** Combines semantic HTML checking, accessibility analysis, performance monitoring, and security checks in one tool.
+
+### **Git Integration & Automation**
+- **Husky**: Git hooks management
+  - **Why?** Automates code quality checks before commits, ensuring only properly formatted and linted code reaches the repository.
+- **Lint-staged**: Run linters on staged files
+  - **Why?** Optimizes pre-commit hooks by only checking files that are actually being committed, improving performance.
+
+### **Security & Monitoring**
+- **Security Audit System**: NPM package vulnerability monitoring
+  - **Why?** Prevents supply chain attacks by monitoring package vulnerabilities and ensuring secure dependencies.
+- **Package Verification**: Dependency verification process
+  - **Why?** Maintains security by verifying package integrity and preventing malicious package installations.
+
+### **Testing Framework**
+- **Jest**: JavaScript testing framework
+  - **Why?** Comprehensive testing for React components, hooks, and utility functions with excellent React Testing Library integration.
+- **React Testing Library**: Component testing utilities
+  - **Why?** Encourages testing user behavior rather than implementation details, leading to more reliable tests.
+
 ## Changes
+
+### Development Tools & Code Quality Implementation
+
+**Date:** October 2025
+**Reason:** Enhanced code quality, security, and development workflow
+
+#### What Was Added
+- **Prettier**: Automated code formatting
+- **Husky + Lint-staged**: Pre-commit hooks for code quality
+- **Custom Linter**: Comprehensive analysis tool for semantic HTML, accessibility, performance, and security
+- **Security Audit System**: NPM package vulnerability monitoring
+- **Enhanced Testing**: Jest and React Testing Library integration
+
+#### Impact
+**Pros:**
+- **Consistent Code Style**: All team members now write code in the same format automatically
+- **Improved Security**: Proactive monitoring prevents supply chain attacks and vulnerabilities
+- **Better Accessibility**: Automatic detection of accessibility issues in HTML components
+- **Enhanced Performance**: Identification of performance bottlenecks and optimization opportunities
+- **Streamlined Workflow**: Automated formatting and linting reduces manual code review time
+- **Quality Assurance**: Comprehensive testing framework ensures reliable code
+
+**Cons:**
+- **Initial Setup Time**: Required configuration and team training on new tools
+- **Learning Curve**: Team needed to adapt to new linting rules and formatting standards
+- **Build Process Complexity**: Additional tools add complexity to the development pipeline
 
 ### CSS Framework Switch: TailwindCSS → Vanilla CSS
 

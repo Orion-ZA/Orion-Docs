@@ -27,6 +27,13 @@ Orion is a comprehensive hiking trail discovery platform that connects outdoor e
 3. **Set Up Your Profile**: Add your preferences and hiking experience level
 4. **Explore Trails**: Start discovering trails in your area
 
+### 📹 Visual Walkthrough
+
+**Interactive Demo**: Watch a developer walkthrough of key Orion features including trail submission and profile management:
+- [Submit a Trail and Update Profile Settings - ScribeHow Demo](https://scribehow.com/viewer/Submit_a_Trail_and_Update_Profile_Settings__FPNxLdO8Qc-9poVPis_UqQ)
+
+This visual guide demonstrates the complete user journey from trail submission to profile customization, showing the actual interface and workflow in action.
+
 ### Navigation Overview
 
 - **Home**: Landing page with featured trails and quick access
@@ -573,7 +580,7 @@ A: Trail moderators are selected from active community members. Contact support 
 
 ---
 
-*Last updated: October 2025*
+*Last updated: 19 October 2025*
 *Version: 0.2.0*
 
 ---

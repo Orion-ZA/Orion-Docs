@@ -708,5 +708,5 @@ Tests are automatically run on:
 ---
 
 *Last updated: 19 October 2025*
-*Frontend coverage: 5094 of 5538 lines covered (91.98%) on `dev`*
+*Frontend coverage: 5275 of 5745 lines covered (91.81%) on `dev`*
 *API coverage: 85.03% statement coverage (326 tests, 784 of 922 lines) on `main`*

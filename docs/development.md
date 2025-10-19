@@ -1995,3 +1995,262 @@ export default App;
    - Restore correct URL
 
 Your React app is now fully integrated with your Express.js API deployed on Render!
+
+## 🔍 Code Quality & Linting Tools
+
+### 🛠️ Custom Linter Setup
+
+The Orion project includes a comprehensive custom linter that combines semantic HTML checking with additional code quality, accessibility, performance, and security checks.
+
+#### **📦 Installation**
+
+The linter tools are already installed as dev dependencies:
+
+```bash
+npm install --save-dev prettier husky lint-staged
+```
+
+#### **⚙️ Configuration Files**
+
+**Prettier Configuration (`.prettierrc`)**
+```json
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": true,
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "embeddedLanguageFormatting": "auto"
+}
+```
+
+**Prettier Ignore (`.prettierignore`)**
+```
+# Ignore artifacts:
+build
+coverage
+
+# Ignore dependencies:
+node_modules
+
+# Ignore other:
+.git
+.vscode
+.env
+.DS_Store
+```
+
+**Lint-staged Configuration (in `package.json`)**
+```json
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  }
+}
+```
+
+#### **🚀 Available Scripts**
+
+**Prettier Scripts**
+```bash
+npm run format          # Format all files
+npm run format:check    # Check formatting (CI/CD)
+npm run format:staged   # Format only staged files
+```
+
+**Semantic HTML Checker Scripts**
+```bash
+npm run semantic-check              # Basic semantic HTML check
+npm run semantic-check:verbose     # Detailed check with suggestions
+npm run semantic-check:components  # Check only components directory
+npm run semantic-check:pages       # Check only pages directory
+```
+
+**Comprehensive Linter Scripts**
+```bash
+npm run lint                    # Run comprehensive linter
+npm run lint:verbose           # Detailed linter output
+npm run lint:accessibility     # Focus on accessibility issues
+npm run lint:performance       # Focus on performance issues
+npm run lint:security          # Focus on security issues
+npm run lint:file              # Analyze specific file and its test
+```
+
+#### **🔍 Custom Linter Features**
+
+**1. Semantic HTML Analysis**
+- Detects usage of `<div>` and `<span>` vs semantic HTML elements
+- Provides per-file statistics and recommendations
+- Identifies accessibility issues with form elements
+- Suggests semantic alternatives for better structure
+
+**2. Accessibility Checks**
+- Missing `alt` attributes on images
+- Missing `label` or `aria-label` for form inputs
+- Proper use of semantic elements (`<button>`, `<nav>`, `<main>`, etc.)
+- Color contrast and keyboard navigation considerations
+
+**3. Performance Analysis**
+- Identifies large bundle sizes
+- Detects unused imports and dependencies
+- Suggests code splitting opportunities
+- Analyzes image optimization needs
+
+**4. Security Checks**
+- Detects potential XSS vulnerabilities
+- Identifies unsafe DOM manipulation
+- Checks for proper input validation
+- Analyzes authentication and authorization patterns
+
+**5. Code Quality Rules**
+- Console statement detection
+- Long line identification
+- Missing type definitions
+- Inconsistent naming conventions
+
+#### **📊 Usage Examples**
+
+**Basic Semantic Check**
+```bash
+npm run semantic-check
+```
+
+**Detailed Analysis with Suggestions**
+```bash
+npm run semantic-check:verbose
+```
+
+**Check Specific Component**
+```bash
+npm run lint:file src/components/TrailCard.js
+```
+
+**Focus on Accessibility**
+```bash
+npm run lint:accessibility
+```
+
+#### **🔄 Git Integration**
+
+**Pre-commit Hook**
+The project uses Husky to automatically run Prettier formatting on staged files before each commit:
+
+```bash
+# .husky/pre-commit
+npx lint-staged
+```
+
+**Workflow**
+1. Write code normally
+2. Stage files with `git add`
+3. Commit with `git commit` (Prettier runs automatically)
+4. Code is automatically formatted and consistent
+
+#### **🎯 Best Practices**
+
+**1. Regular Linting**
+- Run `npm run lint` before major commits
+- Use `npm run semantic-check:verbose` for detailed HTML analysis
+- Fix accessibility issues as they're identified
+
+**2. Component Development**
+- Use `npm run lint:file ComponentName.js` to analyze specific components
+- Check both the component and its test file together
+- Focus on semantic HTML structure
+
+**3. Performance Monitoring**
+- Run `npm run lint:performance` before releases
+- Address bundle size and optimization suggestions
+- Monitor for performance regressions
+
+**4. Security Reviews**
+- Use `npm run lint:security` for security-focused analysis
+- Review authentication and input validation patterns
+- Check for potential vulnerabilities
+
+#### **🔧 IDE Integration**
+
+**VS Code Setup**
+Install the Prettier extension and add to settings:
+
+```json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true
+}
+```
+
+**Other IDEs**
+- **WebStorm**: Built-in Prettier support
+- **Sublime Text**: Install JsPrettier package
+- **Atom**: Install prettier-atom package
+
+#### **📈 Continuous Integration**
+
+**GitHub Actions Integration**
+Add to your workflow:
+
+```yaml
+- name: Run Linter
+  run: |
+    npm run format:check
+    npm run lint:accessibility
+    npm run semantic-check
+```
+
+**Pre-commit Checks**
+The pre-commit hook ensures:
+- All staged files are properly formatted
+- Code style consistency across the team
+- No formatting issues in the repository
+
+#### **🚨 Troubleshooting**
+
+**Common Issues**
+
+1. **ESLint Errors Blocking Commits**
+   - The lint-staged config only runs Prettier (not ESLint) to avoid blocking commits
+   - Run `npm run lint` manually to see ESLint issues
+   - Fix ESLint errors gradually without blocking development
+
+2. **Prettier Conflicts**
+   - Ensure all team members use the same `.prettierrc` configuration
+   - Run `npm run format` to resolve formatting conflicts
+   - Check `.prettierignore` for excluded files
+
+3. **Semantic HTML Issues**
+   - Use `npm run semantic-check:verbose` for detailed suggestions
+   - Focus on high-priority recommendations first
+   - Gradually improve HTML structure over time
+
+#### **📚 Related Documentation**
+
+- **Prettier Setup**: See `PRETTIER_SETUP.md` for detailed Prettier configuration
+- **Testing**: See `src/__tests__/TESTING.md` for testing guidelines
+- **API Documentation**: See API docs for backend integration
+
+#### **🎉 Benefits**
+
+1. **Consistent Code Style**: All team members write code in the same format
+2. **Better Accessibility**: Automatic detection of accessibility issues
+3. **Improved Performance**: Identification of performance bottlenecks
+4. **Enhanced Security**: Detection of potential security vulnerabilities
+5. **Semantic HTML**: Better HTML structure and SEO optimization
+6. **Team Productivity**: Reduced code review time and fewer style discussions
+
+The custom linter ensures high code quality, accessibility compliance, and consistent development practices across the entire Orion project.
