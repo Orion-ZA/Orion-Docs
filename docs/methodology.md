@@ -96,6 +96,10 @@ We follow a simplified Agile Scrum workflow:
 - **Communication**: Discord
 - **Documentation**: Markdown deployed via Pages
 
+### Project Tracking
+
+- **Burn-up Chart**: [GitHub Projects Insights](https://github.com/orgs/Orion-ZA/projects/3/insights?period=max) - Track sprint progress and velocity over time
+
 ---
 
 ## Collaboration & Communication
