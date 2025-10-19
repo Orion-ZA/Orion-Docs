@@ -1231,6 +1231,35 @@ Delete a report.
 
 ---
 
+## 🚀 Deployment & Infrastructure
+
+### Render API Deployment
+
+The RESTful CRUD API is deployed on **Render** at `https://orion-api-qeyv.onrender.com`.
+
+#### Free Plan Limitations & Solutions
+
+**⚠️ Important Note about Render Free Plan:**
+- Render's free tier automatically **spins down services after 10 minutes of inactivity**
+- This can cause delays when users first access the API after periods of inactivity
+- The service needs to "cold start" which can take 10-30 seconds
+
+**💡 Solution Implemented:**
+To keep the API responsive and avoid cold starts, we implemented an **UptimeRobot** monitoring solution:
+- UptimeRobot pings the API health endpoint (`/health`) every 5 minutes
+- This prevents the service from going idle and eliminates cold start delays
+- Users get immediate API responses without waiting for service startup
+
+**Configuration:**
+- **Monitoring Service:** UptimeRobot (Free tier)
+- **Ping Interval:** Every 5 minutes
+- **Endpoint:** `GET https://orion-api-qeyv.onrender.com/health`
+- **Expected Response:** `{"status":"OK","timestamp":"...","uptime":"..."}`
+
+This approach ensures 99.9% uptime and consistent performance for users while staying within the free tier limitations.
+
+---
+
 ## ✅ Usage Notes
 
 ### Firebase Cloud Functions API
